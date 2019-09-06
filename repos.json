@@ -1,0 +1,58 @@
+[
+    {
+        "path": "repos/rhinocommon/mcneel/rhino-developer-samples",
+        "url": "git@github.com:mcneel/rhino-developer-samples.git"
+    },
+    {
+        "path": "repos/grasshopper/mcneel/rhino-developer-samples",
+        "url": "git@github.com:mcneel/rhino-developer-samples.git"
+    },
+    {
+        "path": "repos/revit/andydandy74/ClockworkForDynamo",
+        "url": "git@github.com:andydandy74/ClockworkForDynamo.git"
+    },
+    {
+        "path": "repos/revit/johnpierson/case-apps",
+        "url": "git@github.com:johnpierson/case-apps.git"
+    },
+    {
+        "path": "repos/revit/johnpierson/RhythmForDynamo",
+        "url": "git@github.com:johnpierson/RhythmForDynamo.git"
+    },
+    {
+        "path": "repos/revit/ksobon/archilab",
+        "url": "git@github.com:ksobon/archilab.git"
+    },
+    {
+        "path": "repos/revit/jeremytammik/Revit_Macro_Samples",
+        "url": "git@github.com:jeremytammik/Revit_Macro_Samples.git"
+    },
+    {
+        "path": "repos/revit/jeremytammik/ExportCncFab",
+        "url": "git@github.com:jeremytammik/ExportCncFab.git"
+    },
+    {
+        "path": "repos/revit/jeremytammik/SpatialElementGeometryCalculator",
+        "url": "git@github.com:jeremytammik/SpatialElementGeometryCalculator.git"
+    },
+    {
+        "path": "repos/revit/jeremytammik/SectionCutGeo",
+        "url": "git@github.com:jeremytammik/SectionCutGeo.git"
+    },
+    {
+        "path": "repos/revit/jeremytammik/the_building_coder_samples",
+        "url": "git@github.com:jeremytammik/the_building_coder_samples.git"
+    },
+    {
+        "path": "repos/revit/CyrilWaechter/pyRevitMEP",
+        "url": "git@github.com:CyrilWaechter/pyRevitMEP.git"
+    },
+    {
+        "path": "repos/navisworks/teocomi/BCFier",
+        "url": "git@github.com:teocomi/BCFier.git"
+    },
+    {
+        "path": "repos/revit/gtalarico/revitapidocs.code",
+        "url": "git@github.com:gtalarico/revitapidocs.code.git"
+    }
+]
