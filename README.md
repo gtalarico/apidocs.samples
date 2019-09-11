@@ -9,7 +9,7 @@ Because the Github Code Search API is limited to a single user or repo, this rep
 ### Limitations
 
 * It's plain text search &ndash; some generic names like `Application` can trigger many false positives
-* It's limited to certain entity types (eg `Class`, `Method`, `Property`, etc.)
+* It's limited to certain entity types (e.g., `Class`, `Method`, `Property`, etc.)
 
 ### How to Contribute?
 
