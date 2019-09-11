@@ -2,9 +2,9 @@
 
 ### How Does it Work?
 
-[Apidocs.co](https://apidocs.co) uses the Github Code Search API against this repo to provide Code Samples directly within pages.
+[Apidocs.co](https://apidocs.co) uses the GitHub Code Search API against this repo to provide Code Samples directly within pages.
 
-Because the Github Code Search API is limited to a single user or repo, this repository aggregates multiple relevant repos so they can all be searchable in a single request.
+Because the GitHub Code Search API is limited to a single user or repo, this repository aggregates multiple relevant repos so they can all be searchable in a single request.
 
 ### Limitations
 
