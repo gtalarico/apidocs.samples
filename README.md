@@ -16,6 +16,4 @@ Because the Github Code Search API is limited to a single user or repo, this rep
 * Fork this repo
 * Add a relevant repo to `repos.json`
 * Run `python update.py`
-* Send a [Pull Request](pulls)
-
-
+* Send a [Pull Request](https://github.com/gtalarico/apidocs.samples/pulls)
