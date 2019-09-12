@@ -54,5 +54,13 @@
     {
         "path": "repos/revit/gtalarico/revitapidocs.code",
         "url": "git@github.com:gtalarico/revitapidocs.code.git"
+    },
+    {
+        "path": "repos/revit/Amoursol/dynamoPython",
+        "url": "git@github.com:Amoursol/dynamoPython.git"
+    },
+    {
+        "path": "repos/revit/jeremytammik/RevitSdkSamples",
+        "url": "git@github.com:jeremytammik/RevitSdkSamples.git"
     }
 ]
