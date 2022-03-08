@@ -60,6 +60,42 @@
         "url": "git@github.com:Amoursol/dynamoPython.git"
     },
     {
+        "path": "repos/revit/Cyril-Pop/IronPython-Samples",
+        "url": "git@github.com:Cyril-Pop/IronPython-Samples.git"
+    },
+    {
+        "path": "repos/revit/Cyril-Pop/Dynamo-Python-Samples",
+        "url": "git@github.com:Cyril-Pop/Dynamo-Python-Samples.git"
+    },
+    {
+        "path": "repos/revit/jchristel/SampleCodeRevitBatchProcessor",
+        "url": "git@github.com:jchristel/SampleCodeRevitBatchProcessor.git"
+    },
+    {
+        "path": "repos/revit/dnenov/pyChilizer",
+        "url": "git@github.com:dnenov/pyChilizer.git"
+    },
+    {
+        "path": "repos/revit/NiWeiNi/BIMiconToolbar",
+        "url": "git@github.com:NiWeiNi/BIMiconToolbar.git"
+    },
+    {
+        "path": "repos/revit/ErikFrits/EF-Tools",
+        "url": "git@github.com:ErikFrits/EF-Tools.git"
+    },
+    {
+        "path": "repos/revit/GiuseppeDotto/pyM4B.extension",
+        "url": "git@github.com:GiuseppeDotto/pyM4B.extension.git"
+    },
+    {
+        "path": "repos/revit/franpossetto/Nina",
+        "url": "git@github.com:franpossetto/Nina.git"
+    },
+    {
+        "path": "repos/revit/OliverEGreen/CodeSamples",
+        "url": "git@github.com:OliverEGreen/CodeSamples.git"
+    },
+    {
         "path": "repos/revit/jeremytammik/RevitSdkSamples",
         "url": "git@github.com:jeremytammik/RevitSdkSamples.git"
     }
