@@ -96,6 +96,26 @@
         "url": "git@github.com:OliverEGreen/CodeSamples.git"
     },
     {
+        "path": "repos/revit/karthi1015/pyrevit_erne",
+        "url": "git@github.com:karthi1015/pyrevit_erne.git"
+    },
+    {
+        "path": "repos/revit/mitevpi/py-design",
+        "url": "git@github.com:mitevpi/py-design.git"
+    },
+    {
+        "path": "repos/revit/daren-thomas/rps-sample-scripts",
+        "url": "git@github.com:daren-thomas/rps-sample-scripts.git"
+    },
+    {
+        "path": "repos/revit/fbe-work/rvt_model_services",
+        "url": "git@github.com:fbe-work/rvt_model_services.git"
+    },
+    {
+        "path": "repos/revit/dimven/SpringNodes",
+        "url": "git@github.com:dimven/SpringNodes.git"
+    },
+    {
         "path": "repos/revit/jeremytammik/RevitSdkSamples",
         "url": "git@github.com:jeremytammik/RevitSdkSamples.git"
     }
