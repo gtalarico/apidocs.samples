@@ -1,122 +1,122 @@
 [
     {
-        "path": "repos/rhinocommon/mcneel/rhino-developer-samples",
-        "url": "git@github.com:mcneel/rhino-developer-samples.git"
-    },
-    {
-        "path": "repos/grasshopper/mcneel/rhino-developer-samples",
-        "url": "git@github.com:mcneel/rhino-developer-samples.git"
-    },
-    {
-        "path": "repos/revit/andydandy74/ClockworkForDynamo",
-        "url": "git@github.com:andydandy74/ClockworkForDynamo.git"
-    },
-    {
-        "path": "repos/revit/johnpierson/case-apps",
-        "url": "git@github.com:johnpierson/case-apps.git"
-    },
-    {
-        "path": "repos/revit/johnpierson/RhythmForDynamo",
-        "url": "git@github.com:johnpierson/RhythmForDynamo.git"
-    },
-    {
-        "path": "repos/revit/ksobon/archilab",
-        "url": "git@github.com:ksobon/archilab.git"
-    },
-    {
-        "path": "repos/revit/jeremytammik/Revit_Macro_Samples",
-        "url": "git@github.com:jeremytammik/Revit_Macro_Samples.git"
-    },
-    {
-        "path": "repos/revit/jeremytammik/ExportCncFab",
-        "url": "git@github.com:jeremytammik/ExportCncFab.git"
-    },
-    {
-        "path": "repos/revit/jeremytammik/SpatialElementGeometryCalculator",
-        "url": "git@github.com:jeremytammik/SpatialElementGeometryCalculator.git"
-    },
-    {
-        "path": "repos/revit/jeremytammik/SectionCutGeo",
-        "url": "git@github.com:jeremytammik/SectionCutGeo.git"
-    },
-    {
-        "path": "repos/revit/jeremytammik/the_building_coder_samples",
-        "url": "git@github.com:jeremytammik/the_building_coder_samples.git"
-    },
-    {
-        "path": "repos/revit/CyrilWaechter/pyRevitMEP",
-        "url": "git@github.com:CyrilWaechter/pyRevitMEP.git"
-    },
-    {
-        "path": "repos/navisworks/teocomi/BCFier",
-        "url": "git@github.com:teocomi/BCFier.git"
-    },
-    {
-        "path": "repos/revit/gtalarico/revitapidocs.code",
-        "url": "git@github.com:gtalarico/revitapidocs.code.git"
-    },
-    {
-        "path": "repos/revit/Amoursol/dynamoPython",
-        "url": "git@github.com:Amoursol/dynamoPython.git"
-    },
-    {
-        "path": "repos/revit/Cyril-Pop/IronPython-Samples",
-        "url": "git@github.com:Cyril-Pop/IronPython-Samples.git"
-    },
-    {
-        "path": "repos/revit/Cyril-Pop/Dynamo-Python-Samples",
-        "url": "git@github.com:Cyril-Pop/Dynamo-Python-Samples.git"
-    },
-    {
-        "path": "repos/revit/jchristel/SampleCodeRevitBatchProcessor",
-        "url": "git@github.com:jchristel/SampleCodeRevitBatchProcessor.git"
-    },
-    {
-        "path": "repos/revit/dnenov/pyChilizer",
-        "url": "git@github.com:dnenov/pyChilizer.git"
-    },
-    {
-        "path": "repos/revit/NiWeiNi/BIMiconToolbar",
-        "url": "git@github.com:NiWeiNi/BIMiconToolbar.git"
-    },
-    {
         "path": "repos/revit/ErikFrits/EF-Tools",
-        "url": "git@github.com:ErikFrits/EF-Tools.git"
+        "url": "git://github.com/ErikFrits/EF-Tools.git"
     },
     {
         "path": "repos/revit/GiuseppeDotto/pyM4B.extension",
-        "url": "git@github.com:GiuseppeDotto/pyM4B.extension.git"
+        "url": "git://github.com/GiuseppeDotto/pyM4B.extension.git"
     },
     {
         "path": "repos/revit/franpossetto/Nina",
-        "url": "git@github.com:franpossetto/Nina.git"
+        "url": "git://github.com/franpossetto/Nina.git"
     },
     {
         "path": "repos/revit/OliverEGreen/CodeSamples",
-        "url": "git@github.com:OliverEGreen/CodeSamples.git"
+        "url": "git://github.com/OliverEGreen/CodeSamples.git"
     },
     {
         "path": "repos/revit/karthi1015/pyrevit_erne",
-        "url": "git@github.com:karthi1015/pyrevit_erne.git"
+        "url": "git://github.com/karthi1015/pyrevit_erne.git"
     },
     {
         "path": "repos/revit/mitevpi/py-design",
-        "url": "git@github.com:mitevpi/py-design.git"
+        "url": "git://github.com/mitevpi/py-design.git"
     },
     {
         "path": "repos/revit/daren-thomas/rps-sample-scripts",
-        "url": "git@github.com:daren-thomas/rps-sample-scripts.git"
+        "url": "git://github.com/daren-thomas/rps-sample-scripts.git"
     },
     {
         "path": "repos/revit/fbe-work/rvt_model_services",
-        "url": "git@github.com:fbe-work/rvt_model_services.git"
+        "url": "git://github.com/fbe-work/rvt_model_services.git"
     },
     {
         "path": "repos/revit/dimven/SpringNodes",
-        "url": "git@github.com:dimven/SpringNodes.git"
+        "url": "git://github.com/dimven/SpringNodes.git"
     },
     {
         "path": "repos/revit/jeremytammik/RevitSdkSamples",
-        "url": "git@github.com:jeremytammik/RevitSdkSamples.git"
-    }
+        "url": "git://github.com/jeremytammik/RevitSdkSamples.git"
+    },
+    {
+        "path": "repos/rhinocommon/mcneel/rhino-developer-samples",
+        "url": "git://github.com/mcneel/rhino-developer-samples.git"
+    },
+    {
+        "path": "repos/grasshopper/mcneel/rhino-developer-samples",
+        "url": "git://github.com/mcneel/rhino-developer-samples.git"
+    },
+    {
+        "path": "repos/revit/andydandy74/ClockworkForDynamo",
+        "url": "git://github.com/andydandy74/ClockworkForDynamo.git"
+    },
+    {
+        "path": "repos/revit/johnpierson/case-apps",
+        "url": "git://github.com/johnpierson/case-apps.git"
+    },
+    {
+        "path": "repos/revit/johnpierson/RhythmForDynamo",
+        "url": "git://github.com/johnpierson/RhythmForDynamo.git"
+    },
+    {
+        "path": "repos/revit/ksobon/archilab",
+        "url": "git://github.com/ksobon/archilab.git"
+    },
+    {
+        "path": "repos/revit/jeremytammik/Revit_Macro_Samples",
+        "url": "git://github.com/jeremytammik/Revit_Macro_Samples.git"
+    },
+    {
+        "path": "repos/revit/jeremytammik/ExportCncFab",
+        "url": "git://github.com/jeremytammik/ExportCncFab.git"
+    },
+    {
+        "path": "repos/revit/jeremytammik/SpatialElementGeometryCalculator",
+        "url": "git://github.com/jeremytammik/SpatialElementGeometryCalculator.git"
+    },
+    {
+        "path": "repos/revit/jeremytammik/SectionCutGeo",
+        "url": "git://github.com/jeremytammik/SectionCutGeo.git"
+    },
+    {
+        "path": "repos/revit/jeremytammik/the_building_coder_samples",
+        "url": "git://github.com/jeremytammik/the_building_coder_samples.git"
+    },
+    {
+        "path": "repos/revit/CyrilWaechter/pyRevitMEP",
+        "url": "git://github.com/CyrilWaechter/pyRevitMEP.git"
+    },
+    {
+        "path": "repos/navisworks/teocomi/BCFier",
+        "url": "git://github.com/teocomi/BCFier.git"
+    },
+    {
+        "path": "repos/revit/gtalarico/revitapidocs.code",
+        "url": "git://github.com/gtalarico/revitapidocs.code.git"
+    },
+    {
+        "path": "repos/revit/Amoursol/dynamoPython",
+        "url": "git://github.com/Amoursol/dynamoPython.git"
+    },
+    {
+        "path": "repos/revit/Cyril-Pop/IronPython-Samples",
+        "url": "git://github.com/Cyril-Pop/IronPython-Samples.git"
+    },
+    {
+        "path": "repos/revit/Cyril-Pop/Dynamo-Python-Samples",
+        "url": "git://github.com/Cyril-Pop/Dynamo-Python-Samples.git"
+    },
+    {
+        "path": "repos/revit/jchristel/SampleCodeRevitBatchProcessor",
+        "url": "git://github.com/jchristel/SampleCodeRevitBatchProcessor.git"
+    },
+    {
+        "path": "repos/revit/dnenov/pyChilizer",
+        "url": "git://github.com/dnenov/pyChilizer.git"
+    },
+    {
+        "path": "repos/revit/NiWeiNi/BIMiconToolbar",
+        "url": "git://github.com/NiWeiNi/BIMiconToolbar.git"
+    } 
 ]
