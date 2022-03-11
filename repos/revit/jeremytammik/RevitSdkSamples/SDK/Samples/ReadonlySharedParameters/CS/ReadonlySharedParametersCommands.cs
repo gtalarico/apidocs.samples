@@ -225,7 +225,7 @@ namespace Revit.SDK.Samples.ReadonlySharedParameters.CS
 
             SharedParameterBindingManager manager = new SharedParameterBindingManager();
             manager.Name = "ReadonlyId";
-            manager.Type = ParameterType.Text;
+            manager.Type = SpecTypeId.String.Text;
             manager.UserModifiable = false;
             manager.Description = "A read-only instance parameter used for coordination with external content.";
             manager.Instance = true;
@@ -240,7 +240,7 @@ namespace Revit.SDK.Samples.ReadonlySharedParameters.CS
 
             manager = new SharedParameterBindingManager();
             manager.Name = "ReadonlyCost";
-            manager.Type = ParameterType.Currency;
+            manager.Type = SpecTypeId.Currency;
             manager.UserModifiable = false;
             manager.Description = "A read-only type parameter used to list the cost of a type.";
             manager.Instance = false;

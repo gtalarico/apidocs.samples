@@ -21,13 +21,8 @@
 //
 
 using System;
-using System.Collections.Generic;
-using System.ComponentModel;
-using System.Data;
-using System.Drawing;
-using System.Text;
 using System.Windows.Forms;
-using System.Collections;
+using Autodesk.Revit.DB;
 
 namespace Revit.SDK.Samples.AllViews.CS
 {
@@ -48,6 +43,86 @@ namespace Revit.SDK.Samples.AllViews.CS
             m_data = data;
             InitializeComponent();
         }
+
+      public bool invalidViewport = true;
+
+      public XYZ m_getMinBoxOutline;
+      public XYZ m_getMaxBoxOutline;
+
+      public XYZ m_getMinLabelOutline;
+      public XYZ m_getMaxLabelOutline;
+
+      public XYZ m_getLabelLineOffset;
+      public double m_getLabelLineLength;
+
+      public XYZ m_getBoxCenter;
+      public ViewportRotation m_getOrientation;
+
+      public ViewportRotation m_setRotation = ViewportRotation.None;
+
+      public void UpdateControls()
+      {
+         if (invalidViewport)
+         {
+            setRotationButton.Enabled = false;
+            setLabelOffsetButton.Enabled = false;
+            setLabelLengthButton.Enabled = false;
+            noneRadioButton.Enabled = false;
+            clockWiseRadioButton.Enabled = false;
+            counterClockWiseRadioButton.Enabled = false;
+            setLabelOffsetXTextBox.Enabled = false;
+            setLabelOffsetYTextBox.Enabled = false;
+            setLabelLineLengthTextBox.Enabled = false;
+
+            //BoxOutline
+            getMinBoxOutlineTextBox.Text = "";
+            getMaxBoxOutlineTextBox.Text = "";
+
+            //LabelOutline
+            getMinLabelOutlineTextBox.Text = "";
+            getMaxLabelOutlineTextBox.Text = "";
+
+            //LabelLineOffset
+            getLabelLineOffsetTextBox.Text = "";
+
+            //LabelLineLength
+            getLabelLineLengthTextBox.Text = "";
+
+            //Others
+            getBoxCenterTextBox.Text = "";
+            getOrientationTtextBox.Text = "";
+         }
+         else
+         {
+            setRotationButton.Enabled = true;
+            setLabelOffsetButton.Enabled = true;
+            setLabelLengthButton.Enabled = true;
+            noneRadioButton.Enabled = true;
+            clockWiseRadioButton.Enabled = true;
+            counterClockWiseRadioButton.Enabled = true;
+            setLabelOffsetXTextBox.Enabled = true;
+            setLabelOffsetYTextBox.Enabled = true;
+            setLabelLineLengthTextBox.Enabled = true;
+
+            //BoxOutline
+            getMinBoxOutlineTextBox.Text = "(" + m_getMinBoxOutline.X + ", " + m_getMinBoxOutline.Y + ")";
+            getMaxBoxOutlineTextBox.Text = "(" + m_getMaxBoxOutline.X + ", " + m_getMaxBoxOutline.Y + ")";
+
+            //LabelOutline
+            getMinLabelOutlineTextBox.Text = "(" + m_getMinLabelOutline.X + ", " + m_getMinLabelOutline.Y + ")";
+            getMaxLabelOutlineTextBox.Text = "(" + m_getMaxLabelOutline.X + ", " + m_getMaxLabelOutline.Y + ")";
+
+            //LabelLineOffset
+            getLabelLineOffsetTextBox.Text = "(" + m_getLabelLineOffset.X + ", " + m_getLabelLineOffset.Y + ")";
+
+            //LabelLineLength
+            getLabelLineLengthTextBox.Text = m_getLabelLineLength.ToString();
+
+            //Others
+            getBoxCenterTextBox.Text = "(" + m_getBoxCenter.X + ", " + m_getBoxCenter.Y + ")";
+            getOrientationTtextBox.Text = m_getOrientation.ToString();
+         }
+      }
 
         private void AllViewsForm_Load(object sender, EventArgs e)
         {
@@ -114,5 +189,72 @@ namespace Revit.SDK.Samples.AllViews.CS
             }            
         }
 
-    }
+      private void selectViewportButton_Click(object sender, EventArgs e)
+      {
+         try
+         {
+            m_data.SelectViewport(this, selectSheetNameTextBox.Text, selectAssociatedViewNameTextBox.Text);
+            UpdateControls();
+         }
+         catch (Exception exception)
+         {
+            UpdateControls();
+            MessageBox.Show("ERROR: " + exception.Message);
+         }
+      }
+
+      private void setRotationButton_Click(object sender, EventArgs e)
+      {
+         m_data.SetRotation(this, m_setRotation);
+         UpdateControls();
+      }
+
+      private void setLabelOffsetButton_Click(object sender, EventArgs e)
+      {
+         if (setLabelOffsetXTextBox.Text.Length != 0 && setLabelOffsetYTextBox.Text.Length != 0)
+         {
+            m_data.SetLabelOffset(this,
+               Convert.ToDouble(setLabelOffsetXTextBox.Text),
+               Convert.ToDouble(setLabelOffsetYTextBox.Text));
+            UpdateControls();
+         }
+         
+      }
+
+      private void setLabelLengthButton_Click(object sender, EventArgs e)
+      {
+         if (setLabelLineLengthTextBox.Text.Length != 0)
+         {
+            m_data.SetLabelLength(this, Convert.ToDouble(setLabelLineLengthTextBox.Text));
+            UpdateControls();
+         }
+      }
+
+      private void selectViewportNameTextBox_TextChanged(object sender, EventArgs e)
+      {
+         invalidViewport = true;
+         UpdateControls();
+      }
+
+      private void selectSheetNameTextBox_TextChanged(object sender, EventArgs e)
+      {
+         invalidViewport = true;
+         UpdateControls();
+      }
+
+      private void noneRadioButton_CheckedChanged(object sender, EventArgs e)
+      {
+         m_setRotation = ViewportRotation.None;
+      }
+
+      private void clockWiseRadioButton_CheckedChanged(object sender, EventArgs e)
+      {
+         m_setRotation = ViewportRotation.Clockwise;
+      }
+
+      private void counterClockWiseRadioButton_CheckedChanged(object sender, EventArgs e)
+      {
+         m_setRotation = ViewportRotation.Counterclockwise;
+      }
+   }
 }

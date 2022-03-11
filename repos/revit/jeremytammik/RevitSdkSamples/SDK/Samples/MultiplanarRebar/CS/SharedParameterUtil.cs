@@ -76,7 +76,7 @@ namespace Revit.SDK.Samples.MultiplanarRebar.CS
             ExternalDefinition Bdef = group.Definitions.get_Item(name) as ExternalDefinition;
             if (Bdef == null)
             {
-               ExternalDefinitionCreationOptions ExternalDefinitionCreationOptions = new ExternalDefinitionCreationOptions(name, ParameterType.ReinforcementLength);
+               ExternalDefinitionCreationOptions ExternalDefinitionCreationOptions = new ExternalDefinitionCreationOptions(name, SpecTypeId.ReinforcementLength);
                Bdef = group.Definitions.Create(ExternalDefinitionCreationOptions) as ExternalDefinition;
             }
 

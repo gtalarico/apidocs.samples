@@ -208,7 +208,7 @@ namespace Revit.SDK.Samples.WindowWizard.CS
 
             //add dimension between sash reference plane and wall face,and add parameter "Window Inset",label the dimension with window-inset parameter
             Dimension windowInsetDimension = m_dimensionCreator.AddDimension(m_rightView, m_sashPlane, exteriorWallFace);
-            FamilyParameter windowInsetPara = m_familyManager.AddParameter("Window Inset", BuiltInParameterGroup.INVALID, ParameterType.Length, false);
+            FamilyParameter windowInsetPara = m_familyManager.AddParameter("Window Inset", new ForgeTypeId(), SpecTypeId.Length, false);
             m_familyManager.Set(windowInsetPara, m_windowInset);
             windowInsetDimension.FamilyLabel = windowInsetPara;
 

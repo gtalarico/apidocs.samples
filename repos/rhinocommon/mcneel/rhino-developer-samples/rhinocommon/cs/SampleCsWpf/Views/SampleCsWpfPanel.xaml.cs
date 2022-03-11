@@ -1,4 +1,5 @@
-﻿using System.Windows.Controls;
+﻿using Rhino;
+using System.Windows;
 using SampleCsWpf.ViewModels;
 
 namespace SampleCsWpf.Views
@@ -16,7 +17,7 @@ namespace SampleCsWpf.Views
 
     private SampleCsWpfPaneViewModel ViewModel => DataContext as SampleCsWpfPaneViewModel;
 
-    private void Button_Click(object sender, System.Windows.RoutedEventArgs e)
+    private void Button1_Click(object sender, System.Windows.RoutedEventArgs e)
     {
       var vm = ViewModel;
       if (vm == null)
@@ -41,6 +42,30 @@ namespace SampleCsWpf.Views
       }
 
       vm.Message = $"Counter set to {vm.Counter}";
+    }
+
+    private void Button2_Click(object sender, RoutedEventArgs e)
+    {
+      Rhino.RhinoApp.RunScript("_Line 0,0,0 5,5,0", false);
+    }
+
+    private void Button3_Click(object sender, RoutedEventArgs e)
+    {
+      Rhino.RhinoApp.RunScript("_Circle", false);
+    }
+
+    private void Control_VisibleChanged(object sender, DependencyPropertyChangedEventArgs e)
+    {
+      if ((bool)e.NewValue)
+      {
+        // Visible code here
+        RhinoApp.WriteLine("SampleCsWpfPanel now visible");
+      }
+      else
+      {
+        // Hidden code here
+        RhinoApp.WriteLine("SampleCsWpfPanel now hidden");
+      }
     }
   }
 }

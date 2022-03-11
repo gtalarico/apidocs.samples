@@ -21,7 +21,7 @@
 //
 
 using System;
-
+using System.Collections.Generic;
 using Autodesk.Revit;
 using Autodesk.Revit.DB;
 using Autodesk.Revit.UI;
@@ -101,7 +101,15 @@ namespace Revit.SDK.Samples.GenerateFloor.CS
         /// <param name="doc">Retrieves an object that represents the currently active project.</param>
         static public void CreateFloor(Data data, Document doc)
         {
-            doc.Create.NewFloor(data.Profile, data.FloorType, data.Level, data.Structural);
+            CurveLoop loop = new CurveLoop();
+            foreach (Curve curve in data.Profile)
+            {
+                loop.Append(curve);
+            }
+
+            List<CurveLoop> floorLoops = new List<CurveLoop> { loop };
+
+            Floor.Create(doc, floorLoops, data.FloorType.Id, data.Level.Id, data.Structural, null, 0.0);
         }
     }
 }

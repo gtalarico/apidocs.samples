@@ -1,8 +1,10 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.IO;
 using Autodesk.Revit.DB;
+using Autodesk.Revit.DB.Events;
+using Dynamo.Graph.Nodes;
 using RevitServices.Persistence;
-using Rhythm.Utilities;
 
 namespace Rhythm.Revit.Application
 {
@@ -19,46 +21,41 @@ namespace Rhythm.Revit.Application
         /// <param name="filePath">The file to obtain document from.</param>
         /// <param name="audit">Choose whether or not to audit the file upon opening. (Will run slower with this)</param>
         /// <param name="detachFromCentral">Choose whether or not to detach from central upon opening. Only for RVT files. </param>
-        /// <returns name="document">The document object. Primarily for use with other Rhythm nodes.</returns>
+        /// <param name="preserveWorksets">Choose whether or not to preserve worksets upon opening. Only for RVT files. </param>
+        /// <param name="closeAllWorksets">Choose if you want to close all worksets upon opening. Defaulted to false.</param>
+        /// <returns name="document">The document object. If the file path is blank this returns the current document.</returns>
         /// <search>
         /// Application.OpenDocumentFile, rhythm
         /// </search>
-        public static string OpenDocumentFile(string filePath, bool audit = false, bool detachFromCentral = false)
+        [NodeCategory("Create")]
+        public static object OpenDocumentFile(string filePath, bool audit = false, bool detachFromCentral = false, bool preserveWorksets = true, bool closeAllWorksets = false)
         {
             var uiapp = DocumentManager.Instance.CurrentUIApplication;
             var app = uiapp.Application;
-            Document doc;
-            string docTitle = string.Empty;
             //instantiate open options for user to pick to audit or not
-            OpenOptions openOpts = new OpenOptions();
-            openOpts.Audit = audit;
-            TransmittedModelOptions tOpt = TransmittedModelOptions.SaveAsNewCentral;
-            if (detachFromCentral == false)
+            OpenOptions openOpts = new OpenOptions
             {
-                openOpts.DetachFromCentralOption = DetachFromCentralOption.DoNotDetach;
-            }
-            else
+                Audit = audit,
+                DetachFromCentralOption = detachFromCentral == false ? DetachFromCentralOption.DoNotDetach :
+                    preserveWorksets == true ? DetachFromCentralOption.DetachAndPreserveWorksets :
+                    DetachFromCentralOption.DetachAndDiscardWorksets
+            };
+            //TransmittedModelOptions tOpt = TransmittedModelOptions.SaveAsNewCentral;
+            //option to close all worksets
+            WorksetConfiguration worksetConfiguration = new WorksetConfiguration(WorksetConfigurationOption.OpenAllWorksets);
+            if (closeAllWorksets)
             {
-                openOpts.DetachFromCentralOption = DetachFromCentralOption.DetachAndPreserveWorksets;
+                worksetConfiguration = new WorksetConfiguration(WorksetConfigurationOption.CloseAllWorksets);
             }
-            
+            openOpts.SetOpenWorksetsConfiguration(worksetConfiguration);
+
             //convert string to model path for open
             ModelPath modelPath = ModelPathUtils.ConvertUserVisiblePathToModelPath(filePath);
 
-            try
-            {
-                docTitle = DocumentUtils.OpenDocument(modelPath, openOpts);
-            }
-            catch (Exception)
-            {
-                //nothing
-            }
+            var document = app.OpenDocumentFile(modelPath, openOpts);
 
-            return docTitle;
+            return document;
         }
-
-        
-
 
         /// <summary>
         /// This node will close the given document with the option to save.
@@ -69,53 +66,172 @@ namespace Rhythm.Revit.Application
         /// <search>
         /// Application.CloseDocument, rhythm
         /// </search>
-        public static string CloseDocument(object document, bool save)
+        [NodeCategory("Actions")]
+        //[Obsolete("This node will be completely removed in future versions of Rhythm")]
+        public static string CloseDocument(Autodesk.Revit.DB.Document document, bool save)
         {
-            Document doc = DocumentUtils.RetrieveDocument(document);
-
-            string result;
             try
             {
-                doc.Close(save);
-                result = "closed";
+                document.Close(save);
+                return "closed";
             }
-            catch (Exception)
+            catch (Exception e)
             {
-                result = "Error, it appears this file cannot be found in the background opened document list.";
+                return e.Message;
+            }
+        }
+
+        /// <summary>
+        /// This will try to open a file in the current version with various options.
+        /// </summary>
+        /// <param name="filePath">The file to obtain document from.</param>
+        /// <param name="audit">Choose whether or not to audit the file upon opening. (Will run slower with this)</param>
+        /// <param name="detachFromCentral">Choose whether or not to detach from central upon opening. Only for RVT files. </param>
+        /// <param name="preserveWorksets">Choose whether or not to preserve worksets upon opening. Only for RVT files. </param>
+        /// <param name="closeAllWorksets">Choose if you want to close all worksets upon opening. Defaulted to false.</param>
+        /// <param name="unloadAllLinks">Choose if you want unload all links?</param>
+        /// <returns name="result">Did it work?</returns>
+        public static string UpgradeFile(string filePath, bool audit = false, bool detachFromCentral = false, bool preserveWorksets = true, bool closeAllWorksets = false, bool unloadAllLinks = false)
+        {
+            var uiapp = DocumentManager.Instance.CurrentUIApplication;
+            var app = uiapp.Application;
+
+            app.FailuresProcessing += AppOnFailuresProcessing;
+
+            //instantiate open options for user to pick to audit or not
+            OpenOptions openOpts = new OpenOptions
+            {
+                Audit = audit,
+                DetachFromCentralOption = detachFromCentral == false ? DetachFromCentralOption.DoNotDetach :
+                    preserveWorksets == true ? DetachFromCentralOption.DetachAndPreserveWorksets :
+                    DetachFromCentralOption.DetachAndDiscardWorksets
+            };
+            //TransmittedModelOptions tOpt = TransmittedModelOptions.SaveAsNewCentral;
+            //option to close all worksets
+            WorksetConfiguration worksetConfiguration = new WorksetConfiguration(WorksetConfigurationOption.OpenAllWorksets);
+            if (closeAllWorksets)
+            {
+                worksetConfiguration = new WorksetConfiguration(WorksetConfigurationOption.CloseAllWorksets);
+            }
+            openOpts.SetOpenWorksetsConfiguration(worksetConfiguration);
+
+            //unload all links if that is desired
+            if (unloadAllLinks)
+            {
+                UnloadRevitLinks(filePath);
             }
 
-            return result;
+
+            //convert string to model path for open
+            ModelPath modelPath = ModelPathUtils.ConvertUserVisiblePathToModelPath(filePath);
+
+            var document = app.OpenDocumentFile(modelPath, openOpts);
+            var workshared = document.IsWorkshared;
+            try
+            {
+                app.FailuresProcessing -= AppOnFailuresProcessing;
+                //do a save as
+                SaveAsOptions opts = new SaveAsOptions();
+                if (workshared)
+                {
+                    var worksharingOptions = new WorksharingSaveAsOptions { SaveAsCentral = true };
+                    opts.SetWorksharingOptions(worksharingOptions);
+                }
+                
+                FileInfo originalInfo = new FileInfo(filePath);
+                string newPath = Path.Combine(originalInfo.DirectoryName,
+                    DocumentManager.Instance.CurrentUIApplication.Application.VersionNumber);
+
+                Directory.CreateDirectory(newPath);
+
+                ModelPath newModelPath = new FilePath(Path.Combine(newPath,originalInfo.Name));
+                document.SaveAs(newModelPath, opts);
+
+                return "Upgraded, saved and closed";
+            }
+            catch (Exception e)
+            {
+                app.FailuresProcessing -= AppOnFailuresProcessing;
+                return e.Message;
+            }
         }
+
+        private static void AppOnFailuresProcessing(object sender, FailuresProcessingEventArgs e)
+        {
+          e.GetFailuresAccessor().DeleteAllWarnings();
+        }
+
         /// <summary>
         /// This node provides access to all of the open documents in revit.
         /// </summary>
         /// <param name="runIt">Do you want to save?</param>
         /// <returns name="documents">The documents that are currently open.</returns>
-        public static List<string> GetOpenDocuments(bool runIt)
+        [NodeCategory("Query")]
+        //[Obsolete("This node will be completely removed in future versions of Rhythm")]
+        public static List<Autodesk.Revit.DB.Document> GetOpenDocuments(bool runIt)
         {
             Autodesk.Revit.DB.Document doc = DocumentManager.Instance.CurrentDBDocument;
 
-            List<string> docNames = new List<string>();
+            List<Autodesk.Revit.DB.Document> documents = new List<Autodesk.Revit.DB.Document>();
 
             var uiApp = DocumentManager.Instance.CurrentUIApplication;
             var app = uiApp.Application;
 
             foreach (Document d in app.Documents)
             {
-                if (d.Title != doc.Title)
+                if (d.Title == doc.Title) continue;
+                try
                 {
-                    try
-                    {
-                        docNames.Add(DocumentUtils.ConvertDocument(doc));
-                    }
-                    catch (Exception)
-                    {
-                        //nothing
-                    }
+                    documents.Add(d);
+                }
+                catch (Exception)
+                {
+                    //nothing
                 }
             }
+            return documents;
+        }
 
-            return docNames;
+        /// <summary>
+        /// Unload revit links for given file path.
+        /// </summary>
+        /// <param name="modelPath">The path to the Revit file</param>
+        /// <returns name="success">Was it successful?></returns>
+        public static bool UnloadRevitLinks(string modelPath)
+        {
+            try
+            {
+                ModelPath mPath = new FilePath(modelPath);
+                TransmissionData tData = TransmissionData.ReadTransmissionData(mPath);
+
+                // collect all (immediate) external references in the model
+                ICollection<ElementId> externalReferences = tData.GetAllExternalFileReferenceIds();
+
+                // find every reference that is a link
+                foreach (ElementId refId in externalReferences)
+                {
+                    ExternalFileReference extRef = tData.GetLastSavedReferenceData(refId);
+
+                    if (extRef.ExternalFileReferenceType == ExternalFileReferenceType.RevitLink)
+                    {
+                        // we do not want to change neither the path nor the path-type
+                        // we only want the links to be unloaded (shouldLoad = false)
+                        tData.SetDesiredReferenceData(refId, extRef.GetPath(), extRef.PathType, false);
+                    }
+                }
+
+                // make sure the IsTransmitted property is set 
+                tData.IsTransmitted = true;
+
+                // modified transmission data must be saved back to the model
+                TransmissionData.WriteTransmissionData(mPath, tData);
+
+                return true;
+            }
+            catch (Exception e)
+            {
+                throw new Exception(e.Message);
+            }
         }
     }
 }

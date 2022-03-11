@@ -86,7 +86,7 @@ namespace Revit.SDK.Samples.FabricationPartLayout.CS
 
                   FabricationNetworkChangeService changeservice = new FabricationNetworkChangeService(doc);
 
-                  // Change the fabrication parts to the first loaded service and group
+                  // Change the fabrication parts to the first loaded service and palette
                   FabricationNetworkChangeServiceResult result = changeservice.ChangeService(selIds, allLoadedServices[0].ServiceId, 0);
 
                   if (result != FabricationNetworkChangeServiceResult.Success)
@@ -278,8 +278,8 @@ namespace Revit.SDK.Samples.FabricationPartLayout.CS
                   applychange.SetSelection( selIds );
                   // Set the service to the second service in the list (ductwork exhaust service)
                   applychange.SetServiceId( allLoadedServices[1].ServiceId );
-                  // Set the group to the second in the list (round)
-                  applychange.SetGroupId( 1 );
+                  // Set the palette to the second in the list (round)
+                  applychange.SetPaletteId( 1 );
 
                   // Get the sizes of all the straights that was in the selection of elements that was added to FabricationNetworkChangeService
                   ISet<Autodesk.Revit.DB.Fabrication.FabricationPartSizeMap> sizeMappings = applychange.GetMapOfAllSizesForStraights();

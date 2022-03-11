@@ -151,6 +151,15 @@ namespace Revit.SDK.Samples.ImportExport.CS
                     exportOptionsForm.ShowDialog();
                 }
             }
+            // Export PDF
+            else if (m_exportData.ExportFormat == ExportFormat.PDF)
+            {
+               ExportPDFData exportPDFData = m_exportData as ExportPDFData;
+               using (ExportPDFOptionsForm exportOptionsForm = new ExportPDFOptionsForm(exportPDFData))
+               {
+                  exportOptionsForm.ShowDialog();
+               }
+            }
 
             // Export DWF
             else

@@ -125,7 +125,7 @@ namespace Revit.SDK.Samples.BeamAndSlabNewParameter.CS
                 
             if (null == information)
             {
-               ExternalDefinitionCreationOptions ExternalDefinitionCreationOptions = new ExternalDefinitionCreationOptions("Unique ID", Autodesk.Revit.DB.ParameterType.Text);
+               ExternalDefinitionCreationOptions ExternalDefinitionCreationOptions = new ExternalDefinitionCreationOptions("Unique ID", Autodesk.Revit.DB.SpecTypeId.String.Text);
                informationCollection.Definitions.Create(ExternalDefinitionCreationOptions);
                 information = informationCollection.Definitions.get_Item("Unique ID");
             }

@@ -35,13 +35,13 @@ using Autodesk.Revit.DB.Structure;
 
 namespace Revit.SDK.Samples.RebarFreeForm.CS
 {
-    /// <summary>
-    /// Implements the Revit add-in interface IExternalApplication
-    /// </summary>
-    [Autodesk.Revit.Attributes.Transaction(Autodesk.Revit.Attributes.TransactionMode.Manual)]
-    [Autodesk.Revit.Attributes.Regeneration(Autodesk.Revit.Attributes.RegenerationOption.Manual)]
-    public class Application : IExternalApplication
-    {
+   /// <summary>
+   /// Implements the Revit add-in interface IExternalApplication
+   /// </summary>
+   [Autodesk.Revit.Attributes.Transaction(Autodesk.Revit.Attributes.TransactionMode.Manual)]
+   [Autodesk.Revit.Attributes.Regeneration(Autodesk.Revit.Attributes.RegenerationOption.Manual)]
+   public class Application : IExternalApplication
+   {
       #region IExternalApplication Members
 
       RebarUpdateServer m_server = new RebarUpdateServer();
@@ -72,7 +72,7 @@ namespace Revit.SDK.Samples.RebarFreeForm.CS
          UpdaterRegistry.RegisterUpdater(updater);
          ElementClassFilter modelLineFilter = new ElementClassFilter(typeof(CurveElement));
          UpdaterRegistry.AddTrigger(updater.GetUpdaterId(), modelLineFilter, Element.GetChangeTypeAny());
-         
+
          //Register the RebarUpdateServer
          ExternalService service = ExternalServiceRegistry.GetService(m_server.GetServiceId());
          if (service != null)

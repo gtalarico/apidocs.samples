@@ -32,9 +32,9 @@ namespace Revit.SDK.Samples.RebarFreeForm.CS
    /// Implements the Revit add-in interface IExternalCommand
    /// </summary>
    [Autodesk.Revit.Attributes.Transaction(Autodesk.Revit.Attributes.TransactionMode.Manual)]
-    [Autodesk.Revit.Attributes.Regeneration(Autodesk.Revit.Attributes.RegenerationOption.Manual)]
-    public class Command : IExternalCommand
-    {
+   [Autodesk.Revit.Attributes.Regeneration(Autodesk.Revit.Attributes.RegenerationOption.Manual)]
+   public class Command : IExternalCommand
+   {
       /// <summary>
       /// Implement this method as an external command for Revit.
       /// </summary>
@@ -84,26 +84,28 @@ namespace Revit.SDK.Samples.RebarFreeForm.CS
                   message = e.Message;
                   return Result.Failed;
                }
-             
-                try
-                {
-                    //Select curve element
-                    Reference lineRef = sel.PickObject(ObjectType.Element, "Select Model curve");
-                    curveElem = doc.GetElement(lineRef.ElementId) as CurveElement;
-                }
-                catch (Exception)
-                {
-                    curveElem = null;
-                }
-                tran.Start();
-               //create Rebar Free Form by specifying the GUID defining the custom external server
-               // the Rebar element returned needs to receive constraints, 
-               // so that regeneration can call the custom geometry calculations and create the bars 
+
+               try
+               {
+                  //Select curve element
+                  Reference lineRef = sel.PickObject(ObjectType.Element, "Select Model curve");
+                  curveElem = doc.GetElement(lineRef.ElementId) as CurveElement;
+               }
+               catch (Exception)
+               {
+                  curveElem = null;
+               }
+               
+               tran.Start();
+               
+               // Create Rebar Free Form by specifying the GUID defining the custom external server.
+               // The Rebar element returned needs to receive constraints, so that regeneration can
+               // call the custom geometry calculations and create the bars 
                rebar = Rebar.CreateFreeForm(doc, RebarUpdateServer.SampleGuid, barType, host);
-               // Get all bar handles to set constraints to them, so that the bar can generate it's geometry
+               // Get all bar handles to set constraints to them, so that the bar can generate its geometry
                RebarConstraintsManager rManager = rebar.GetRebarConstraintsManager();
                IList<RebarConstrainedHandle> handles = rManager.GetAllHandles();
-          
+
                // if bar has no handles then the server can't generate rebar geometry 
                if (handles.Count <= 0)
                {
@@ -136,26 +138,33 @@ namespace Revit.SDK.Samples.RebarFreeForm.CS
                   }
                }
 
-            try
-            {
-                //here we add a value to the shared parameter and add it to the regeneration dependencies
-                Parameter newSharedParam = rebar.LookupParameter(AddSharedParams.m_paramName);
-                Parameter newSharedParam2 = rebar.LookupParameter(AddSharedParams.m_CurveIdName);
-                newSharedParam.Set(0);
-                newSharedParam2.Set(curveElem == null ? -1 : curveElem.Id.IntegerValue);
+               try
+               {
+                  //here we add a value to the shared parameter and add it to the regeneration dependencies
+                  Parameter newSharedParam = rebar.LookupParameter(AddSharedParams.m_paramName);
+                  Parameter newSharedParam2 = rebar.LookupParameter(AddSharedParams.m_CurveIdName);
+                  if (newSharedParam != null && newSharedParam2 != null)
+                  {
+                     newSharedParam.Set(0);
+                     newSharedParam2.Set(curveElem == null ? -1 : curveElem.Id.IntegerValue);
 
-                RebarFreeFormAccessor accesRebar = rebar.GetFreeFormAccessor();
-                accesRebar.AddUpdatingSharedParameter(newSharedParam.Id);
-                accesRebar.AddUpdatingSharedParameter(newSharedParam2.Id);
-            }
-            catch (Exception ex)
-                {
-                    message = ex.Message;
-                    tran.RollBack();
-                    return Result.Cancelled;
-                }
-            tran.Commit();
-            return Result.Succeeded;
+                     RebarFreeFormAccessor accesRebar = rebar.GetFreeFormAccessor();
+                     accesRebar.AddUpdatingSharedParameter(newSharedParam.Id);
+                     accesRebar.AddUpdatingSharedParameter(newSharedParam2.Id);
+                  }
+                  else 
+                  {
+                     // The AddSharedParams command should be executed to create and bind these parameters to rebar.
+                  }
+               }
+               catch (Exception ex)
+               {
+                  message = ex.Message;
+                  tran.RollBack();
+                  return Result.Cancelled;
+               }
+               tran.Commit();
+               return Result.Succeeded;
             }
          }
          catch (Exception ex)

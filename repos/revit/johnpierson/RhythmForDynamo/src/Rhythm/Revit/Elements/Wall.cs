@@ -1,10 +1,14 @@
-﻿using System.Collections.Generic;
+﻿using System;
+using System.Collections.Generic;
 using System.Linq;
+using Autodesk.DesignScript.Runtime;
 using Autodesk.Revit.DB;
+using Dynamo.Graph.Nodes;
 using RevitServices.Persistence;
 using Revit.Elements;
-using RevitServices.Transactions;
+using Revit.GeometryConversion;
 using Element = Autodesk.Revit.DB.Element;
+using Line = Autodesk.Revit.DB.Line;
 
 namespace Rhythm.Revit.Elements
 {
@@ -24,6 +28,7 @@ namespace Rhythm.Revit.Elements
         /// <search>
         /// profile, wall
         /// </search>
+        [NodeCategory("Query")]
         public static bool HasEditedProfile(global::Revit.Elements.Element wall)
         {
             Autodesk.Revit.DB.Document doc = DocumentManager.Instance.CurrentDBDocument;
@@ -37,9 +42,7 @@ namespace Rhythm.Revit.Elements
             List<Autodesk.Revit.DB.Element> elems = new List<Element>(elemIds.Select(e => doc.GetElement(e)));
 
             //find out if any of the elements are of sketch type
-            var sketchElems = elems.Where(e => e is Autodesk.Revit.DB.Sketch || e is Autodesk.Revit.DB.SketchPlane).ToList();
-
-            return sketchElems.Count > 1;
+            return elems.Any(e => e is Autodesk.Revit.DB.Sketch || e is Autodesk.Revit.DB.SketchPlane);
         }
         /// <summary>
         /// This node will try to check if the walls profile has been modified using the dependent elements method available in Revit 2018.1+
@@ -49,6 +52,7 @@ namespace Rhythm.Revit.Elements
         /// <search>
         /// profile, wall
         /// </search>
+        [NodeCategory("Query")]
         public static global::Revit.Elements.Element[] EditedProfile(global::Revit.Elements.Element wall)
         {
             Autodesk.Revit.DB.Document doc = DocumentManager.Instance.CurrentDBDocument;
@@ -66,6 +70,147 @@ namespace Rhythm.Revit.Elements
             global::Revit.Elements.Element[] modelCurves = internalCurves.Select(e => e.ToDSType(true)).ToArray();
 
             return modelCurves;
+        }
+
+        /// <summary>
+        /// This will estimate the wall's facing direction. Credit for the logic in this node goes to CASE.
+        /// Without the open source tools provided by Don and the CASE team, this node would probably not exist.
+        /// https://github.com/rudderdon/case-apps/blob/master/2017/Case.Directionality/Case.Directionality/Data/clsExternalWalls.vb
+        /// </summary>
+        /// <param name="wall">The wall to calculate facing from.</param>
+        /// <returns name="facingDirection">The estimated facing direction.</returns>
+        /// <returns name="facingVector">The facing vector.</returns>
+        [MultiReturn(new[] { "facingDirection", "facingVector" })]
+        [NodeCategory("Query")]
+        public static Dictionary<string, object> Direction(global::Revit.Elements.Element wall)
+        {
+            Autodesk.Revit.DB.Document doc = DocumentManager.Instance.CurrentDBDocument;
+            Autodesk.Revit.DB.Wall internalWall = wall.InternalElement as Autodesk.Revit.DB.Wall;
+
+            XYZ wallDirection = GetWallDirection(internalWall);
+
+            //returns the outputs
+            var outInfo = new Dictionary<string, object>
+            {
+                {"facingDirection", GetFacingDirection(wallDirection)},
+                {"facingVector", wallDirection.ToVector()}
+            };
+            return outInfo;
+        }
+
+
+        /// https://github.com/rudderdon/case-apps/blob/master/2017/Case.Directionality/Case.Directionality/Data/clsExternalWalls.vb
+        private static XYZ GetWallDirection(Autodesk.Revit.DB.Wall wall)
+        {
+            LocationCurve locCurve = wall.Location as LocationCurve;
+            XYZ extDirection = XYZ.BasisZ;
+
+            var curve = locCurve.Curve;
+            var dir = XYZ.BasisX;
+            if (curve != null && curve is Line)
+            {
+                dir = curve.ComputeDerivatives(0, true).BasisX.Normalize();
+            }
+            else
+            {
+                dir = (curve.GetEndPoint(1) - curve.GetEndPoint(0)).Normalize();
+            }
+
+            extDirection = XYZ.BasisZ.CrossProduct(dir);
+
+            if (wall.Flipped)
+            {
+                extDirection = -extDirection;
+            }
+
+            return extDirection;
+        }
+        /// https://github.com/rudderdon/case-apps/blob/master/2017/Case.Directionality/Case.Directionality/Data/clsExternalWalls.vb
+
+        private static string GetFacingDirection(XYZ wallDirection)
+        {
+            var angleToNorth = wallDirection.AngleTo(XYZ.BasisY);
+            var angleToSouth = wallDirection.AngleTo(-XYZ.BasisY);
+            var angleToEast = wallDirection.AngleTo(XYZ.BasisX);
+            var angleToWest = wallDirection.AngleTo(-XYZ.BasisX);
+
+            //is to the left?
+            string wallFacing = string.Empty;
+
+            if (Math.Abs(angleToNorth) < Math.PI / 4)
+            {
+                //north
+                wallFacing = "N";
+
+                //north east
+                if (Math.Abs(angleToEast) < Math.PI / 3)
+                {
+                    //east
+                    wallFacing = "NE";
+                }
+                if (Math.Abs(angleToWest) < Math.PI / 3)
+                {
+                    //east
+                    wallFacing = "NW";
+                }
+            }
+
+            if (Math.Abs(angleToSouth) < Math.PI / 4)
+            {
+                //south
+                wallFacing = "S";
+
+                //north east
+                if (Math.Abs(angleToEast) < Math.PI / 3)
+                {
+                    //east
+                    wallFacing = "SE";
+                }
+                if (Math.Abs(angleToWest) < Math.PI / 3)
+                {
+                    //east
+                    wallFacing = "SW";
+                }
+            }
+
+            if (Math.Abs(angleToEast) < Math.PI / 4)
+            {
+                //south
+                wallFacing = "E";
+
+                //north east
+                if (Math.Abs(angleToEast) < Math.PI / 3)
+                {
+                    //east
+                    wallFacing = "NE";
+                }
+                if (Math.Abs(angleToWest) < Math.PI / 3)
+                {
+                    //east
+                    wallFacing = "SE";
+                }
+            }
+
+            if (Math.Abs(angleToWest) < Math.PI / 4)
+            {
+                //south
+                wallFacing = "W";
+
+                //north east
+                if (Math.Abs(angleToEast) < Math.PI / 3)
+                {
+                    //east
+                    wallFacing = "NW";
+                }
+                if (Math.Abs(angleToWest) < Math.PI / 3)
+                {
+                    //east
+                    wallFacing = "SW";
+                }
+            }
+
+
+            return wallFacing;
         }
     }
 }

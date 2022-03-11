@@ -767,29 +767,29 @@ namespace Revit.SDK.Samples.FabricationPartLayout.CS
       }
 
       /// <summary>
-      /// Convenience method to locate a fabrication service button specified by group and name.
+      /// Convenience method to locate a fabrication service button specified by palette and name.
       /// </summary>
       /// <param name="service">
       /// The fabrication service.
       /// </param>
-      /// <param name="group">
-      /// The fabrication service group index.
+      /// <param name="palette">
+      /// The fabrication service palette index.
       /// </param>
       /// <param name="name">
       /// The fabrication service button name.
       /// </param>
       /// <returns>
-      /// Returns the fabrication service button as specified by the fabrication service, group and name.
+      /// Returns the fabrication service button as specified by the fabrication service, palette and name.
       /// </returns>
-      FabricationServiceButton locateButton(FabricationService service, int group, string name)
+      FabricationServiceButton locateButton(FabricationService service, int palette, string name)
       {
          FabricationServiceButton button = null;
-         if (service != null && group >= 0 && group < service.GroupCount)
+         if (service != null && palette >= 0 && palette < service.PaletteCount)
          {
-            int buttonCount = service.GetButtonCount(group);
+            int buttonCount = service.GetButtonCount(palette);
             for (int i = 0; button == null && i < buttonCount; i++)
             {
-               FabricationServiceButton bt = service.GetButton(group, i);
+               FabricationServiceButton bt = service.GetButton(palette, i);
                if (bt != null && bt.Name.Equals(name))
                   button = bt;
             }

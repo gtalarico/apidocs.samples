@@ -133,14 +133,14 @@ namespace Revit.SDK.Samples.DWGFamilyCreation.CS
 
             // Add parameter 1: DWGFileName
             familyMgr.NewType("DWGFamilyCreation");
-            FamilyParameter paraFileName = familyMgr.AddParameter("DWGFileName", Autodesk.Revit.DB.BuiltInParameterGroup.INVALID,
-                Autodesk.Revit.DB.ParameterType.Text, false);
+            FamilyParameter paraFileName = familyMgr.AddParameter("DWGFileName", new ForgeTypeId(),
+                SpecTypeId.String.Text, false);
             familyMgr.Set(paraFileName, DWGFileName);
 
             // Add parameter 2: ImportTime
             String time = DateTime.Now.ToString("yyyy-MM-dd");
-            FamilyParameter paraImportTime = familyMgr.AddParameter("ImportTime", Autodesk.Revit.DB.BuiltInParameterGroup.INVALID,
-                Autodesk.Revit.DB.ParameterType.Text, false);
+            FamilyParameter paraImportTime = familyMgr.AddParameter("ImportTime", new ForgeTypeId(),
+                SpecTypeId.String.Text, false);
             familyMgr.Set(paraImportTime, time);
         }
 

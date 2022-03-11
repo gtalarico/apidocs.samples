@@ -17,7 +17,7 @@ namespace Revit.SDK.Samples.Custom2DExporter.CS
    /// - the exporter also keeps a tally of all exported elements in m_numElements.
    /// The methods OnCurve, OnPolyline, OnFaceBegin, OnFaceEdge2D and OnFaceSilhouette2D return RenderNodeAction.Proceed, 
    /// will makes sure that all geometry comes in tessellated in OnLineSegment and OnPolylineSegments.
-   /// Note1: annnotation geometry in Wireframe iz exported in OnCurve and OnPolyline, where it is tessellated and stored in m_points.
+   /// Note1: Some annotation geometry is exported in OnCurve and OnPolyline, where it is tessellated and stored in m_points.
    /// Note2: If you wish to process geometry without tessellating it, then you need to implement curve export in
    /// OnCurve, OnPolyline, OnFaceBegin, OnFaceEdge2D and OnFaceSilhouette2D and return RenderNodeAction.Skip.
    /// Note3: Special instance transforms may not always be taken into account.
@@ -150,7 +150,7 @@ namespace Revit.SDK.Samples.Custom2DExporter.CS
 
       public RenderNodeAction OnCurve(CurveNode node)
       {
-         // tessellate annotations OnCurve to support Wireframe annotation export
+         // Customize tessellation of annotation curves
          if (m_currentElem.Category.CategoryType == CategoryType.Annotation)
          {
             IList<XYZ> list = new List<XYZ>();
@@ -168,6 +168,7 @@ namespace Revit.SDK.Samples.Custom2DExporter.CS
             }
 
             Utilities.addTo(m_points, list);
+            return RenderNodeAction.Skip;
          }
 
          return RenderNodeAction.Proceed;
@@ -175,12 +176,13 @@ namespace Revit.SDK.Samples.Custom2DExporter.CS
 
       public RenderNodeAction OnPolyline(PolylineNode node)
       {
-         // tessellate annotations OnPolyline to support Wireframe annotation export
+         // Customize processing of annotation polylines
          if (m_currentElem.Category.CategoryType == CategoryType.Annotation)
          {
             PolyLine pLine = node.GetPolyline();
             IList<XYZ> list = pLine.GetCoordinates();
             Utilities.addTo(m_points, list);
+            return RenderNodeAction.Skip;
          }
 
          return RenderNodeAction.Proceed;
@@ -188,7 +190,7 @@ namespace Revit.SDK.Samples.Custom2DExporter.CS
 
       public RenderNodeAction OnFaceEdge2D(FaceEdgeNode node)
       {
-         // tessellate annotations OnFaceEdge2D to support Wireframe annotation export
+         // Customize tessellation of annotation face edges
          //if (m_currentElem.Category.CategoryType == CategoryType.Annotation)
          //{
          //   Curve curve = node.GetFaceEdge().AsCurve();

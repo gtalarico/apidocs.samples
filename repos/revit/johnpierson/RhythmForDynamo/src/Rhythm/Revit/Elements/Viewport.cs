@@ -1,14 +1,21 @@
-﻿using Autodesk.DesignScript.Runtime;
+﻿using System;
+using Autodesk.DesignScript.Runtime;
 using System.Collections.Generic;
 using Autodesk.DesignScript.Geometry;
 using Autodesk.Revit.DB;
+using Dynamo.Graph.Nodes;
+using Nuclex.Game.Packing;
 using RevitServices.Persistence;
 using Revit.Elements;
 using Revit.GeometryConversion;
 using RevitServices.Transactions;
+using Element = Revit.Elements.Element;
+using GlobalParameter = Autodesk.Revit.DB.GlobalParameter;
 using Plane = Autodesk.DesignScript.Geometry.Plane;
 using Point = Autodesk.DesignScript.Geometry.Point;
+using Rectangle = Autodesk.DesignScript.Geometry.Rectangle;
 using Surface = Autodesk.DesignScript.Geometry.Surface;
+using UV = Autodesk.DesignScript.Geometry.UV;
 
 namespace Rhythm.Revit.Elements
 {
@@ -19,6 +26,52 @@ namespace Rhythm.Revit.Elements
     {
         private Viewport()
         { }
+
+
+        /// <summary>
+        /// 
+        /// </summary>
+        /// <param name="viewport"></param>
+        public static void AlignViewTitle(global::Revit.Elements.Element viewport)
+        {
+            Autodesk.Revit.DB.Document doc = DocumentManager.Instance.CurrentDBDocument;
+
+            //cast the viewport to the internal Revit DB Type
+            Autodesk.Revit.DB.Viewport internalViewport = viewport.InternalElement as Autodesk.Revit.DB.Viewport;
+            
+            //get the original box center (for when we re-place the viewport)
+            var originalBoxCenter = internalViewport.GetBoxCenter();
+
+            var sheetId = internalViewport.SheetId;
+            var viewId = internalViewport.ViewId;
+
+            //force close dynamo's open transaction
+            TransactionManager.Instance.ForceCloseTransaction();
+
+            //use a transaction group to sequence the events into one
+            TransactionGroup tGroup = new TransactionGroup(doc, "Aligning Viewport");
+            tGroup.Start();
+
+            //delete the original viewport
+            using (Transaction deleteOriginalViewport = new Transaction(doc, "Deleting Original"))
+            {
+                deleteOriginalViewport.Start();
+                doc.Delete(internalViewport.Id);
+                deleteOriginalViewport.Commit();
+            }
+
+            //place the viewport again to get an aligned viewport title
+            using (Transaction replaceViewport = new Transaction(doc, "Placing Viewport with Aligned View Title"))
+            {
+                replaceViewport.Start();
+                Autodesk.Revit.DB.Viewport.Create(doc, sheetId, viewId, originalBoxCenter);
+                replaceViewport.Commit();
+            }
+
+            tGroup.Assimilate();
+
+        }
+
         /// <summary>
         /// This node will place the given view on the given sheet, if possible. For floor plan views: They cannot be on any other sheets. Now supports schedules! 
         /// </summary>
@@ -29,37 +82,51 @@ namespace Rhythm.Revit.Elements
         /// <search>
         /// viewport, addview,rhythm
         /// </search>
-        public static global::Revit.Elements.Element Create(global::Revit.Elements.Views.Sheet sheet, global::Revit.Elements.Element view, Autodesk.DesignScript.Geometry.Point location)
+        [NodeCategory("Create")]
+        public static object Create(global::Revit.Elements.Views.Sheet sheet, global::Revit.Elements.Element view, Autodesk.DesignScript.Geometry.Point location)
         {
             Autodesk.Revit.DB.Document doc = DocumentManager.Instance.CurrentDBDocument;
-            //obtain the element id from the sheet
-            ElementId sheetId = new ElementId(sheet.Id);
-            global::Revit.Elements.Element result = null;
 
-            if (view.InternalElement.ToString() == "Autodesk.Revit.DB.ViewSchedule")
+           //obtain the element id from the sheet
+           ElementId sheetId = new ElementId(sheet.Id);
+            Autodesk.Revit.DB.Element result = null;
+            //change the dynamo point to a revit point
+            var revitPoint = location.ToRevitType(true);
+            //obtain the element id from the view
+            ElementId viewId = new ElementId(view.Id);
+
+            try
             {
-                //obtain the element id from the view
-                ElementId viewId = new ElementId(view.Id);
-                //chane the dynamo point to a revit point
-                var revitPoint = location.ToRevitType(true);
                 //start the transaction to place views
                 TransactionManager.Instance.EnsureInTransaction(doc);
-                result = Autodesk.Revit.DB.ScheduleSheetInstance.Create(doc, sheetId, viewId, revitPoint).ToDSType(true);
-                TransactionManager.Instance.TransactionTaskDone();
-            }
-            else
-            {
-                //obtain the element id from the view
-                ElementId viewId = new ElementId(view.Id);
-                //chane the dynamo point to a revit point
-                var revitPoint = location.ToRevitType(true);
-                //start the transaction to place views
-                TransactionManager.Instance.EnsureInTransaction(doc);
-                result = Autodesk.Revit.DB.Viewport.Create(doc, sheetId, viewId, revitPoint).ToDSType(true);
-                TransactionManager.Instance.TransactionTaskDone();
-            }
+                doc.Regenerate();
+                if (view.InternalElement.ToString() == "Autodesk.Revit.DB.ViewSchedule")
+                {
+                    result = Autodesk.Revit.DB.ScheduleSheetInstance.Create(doc, sheetId, viewId, revitPoint);
+                }
+                else
+                {
+                    result = Autodesk.Revit.DB.Viewport.Create(doc, sheetId, viewId, revitPoint);  
+                }
 
-            return result;
+                TransactionManager.Instance.TransactionTaskDone();
+
+                return result.ToDSType(true);
+            }
+            catch (Exception e)
+            {
+                if (!Autodesk.Revit.DB.Viewport.CanAddViewToSheet(doc, sheetId, viewId))
+                {
+                    return "Error: View " + view.Id + " cannot be added to the sheet because it is already on another sheet.";
+                }
+                if (result == null)
+                {
+                    return "Error: View " + view.Id + " cannot be added to the sheet because it is empty.";
+                }
+
+                return "Error: View " + view.Id + e.Message;
+            }
+          
         }
         /// <summary>
         /// This node will obtain the box location data from the provided viewport.
@@ -73,6 +140,7 @@ namespace Rhythm.Revit.Elements
         /// </search>
         //this is the node Viewport.LocationData
         [MultiReturn(new[] { "bBox", "boxCenter", "boxOutline" })]
+        [NodeCategory("Query")]
         public static Dictionary<string, object> LocationData(global::Revit.Elements.Element viewport)
         {
             //obtain the element id from the sheet
@@ -107,7 +175,7 @@ namespace Rhythm.Revit.Elements
                     c.Dispose();
                 }
             }
-
+            
             //dispose of temporary geometries         
             boxCuboid.Dispose();
             boxPlane.Dispose();
@@ -129,6 +197,7 @@ namespace Rhythm.Revit.Elements
         /// <search>
         /// viewport, Viewport.LabelOutline, rhythm
         /// </search>
+        [NodeCategory("Query")]
         public static List<Autodesk.DesignScript.Geometry.Curve> LabelOutline(global::Revit.Elements.Element viewport)
         {
             Autodesk.Revit.DB.Document doc = DocumentManager.Instance.CurrentDBDocument;
@@ -167,6 +236,7 @@ namespace Rhythm.Revit.Elements
         /// <search>
         /// viewport, location,rhythm
         /// </search>
+        [NodeCategory("Query")]
         public static global::Revit.Elements.Element GetView(global::Revit.Elements.Element viewport)
         {
             Autodesk.Revit.DB.Document doc = DocumentManager.Instance.CurrentDBDocument;
@@ -186,6 +256,7 @@ namespace Rhythm.Revit.Elements
         /// <search>
         /// viewport
         /// </search>
+        [NodeCategory("Actions")]
         public static List<global::Revit.Elements.Element> SetLocationBasedOnOther(global::Revit.Elements.Element parentViewport, List<global::Revit.Elements.Element> childViewports)
         {
             Autodesk.Revit.DB.Document doc = DocumentManager.Instance.CurrentDBDocument;
@@ -216,6 +287,7 @@ namespace Rhythm.Revit.Elements
         /// <search>
         /// viewport
         /// </search>
+        [NodeCategory("Actions")]
         public static void SetBoxCenter(global::Revit.Elements.Element viewport, Point point)
         {
             Autodesk.Revit.DB.Document doc = DocumentManager.Instance.CurrentDBDocument;
@@ -233,10 +305,60 @@ namespace Rhythm.Revit.Elements
         /// <search>
         /// viewport
         /// </search>
+        [NodeCategory("Query")]
         public static Point BoxCenter(global::Revit.Elements.Element viewport)
         {
             Autodesk.Revit.DB.Viewport internalViewport = (Autodesk.Revit.DB.Viewport)viewport.InternalElement;
             return internalViewport.GetBoxCenter().ToPoint();
         }
+
+        /// <summary>
+        /// Set a viewport's title length.
+        /// </summary>
+        /// <param name="viewport">The target viewport.</param>
+        /// <param name="length">The length to set it to.</param>
+        [NodeCategory("Actions")]
+        public static object SetViewTitleLength(global::Revit.Elements.Element viewport, double length)
+        {
+            string versionNumber = DocumentManager.Instance.CurrentUIApplication.Application.VersionNumber;
+            //check if it is Revit 2022
+            if (!versionNumber.Contains("2022"))
+            {
+                throw new Exception(@"This node only works in Revit 2022 as that is when this API was added. ¯\_(ツ)_/¯");
+            }
+            return Utilities.CommandHelpers.InvokeNode("RhythmRevit2022.dll", "Viewport.SetViewTitleLength", new object[] { viewport, length});
+        }
+        /// <summary>
+        /// Set a viewport's title location (relative to the boundary of the view).
+        /// </summary>
+        /// <param name="viewport">The target viewport.</param>
+        /// <param name="location">The location to set it to.</param>
+        [NodeCategory("Actions")]
+        public static object SetViewTitleLocation(global::Revit.Elements.Element viewport, Point location)
+        {
+            string versionNumber = DocumentManager.Instance.CurrentUIApplication.Application.VersionNumber;
+            //check if it is Revit 2022
+            if (!versionNumber.Contains("2022"))
+            {
+                throw new Exception(@"This node only works in Revit 2022 as that is when this API was added. ¯\_(ツ)_/¯");
+            }
+            return Utilities.CommandHelpers.InvokeNode("RhythmRevit2022.dll", "Viewport.SetViewTitleLocation", new object[] { viewport, location });
+        }
+        /// <summary>
+        /// Get a viewport's title location (relative to the boundary of the view).
+        /// </summary>
+        /// <param name="viewport">The target viewport.</param>
+        [NodeCategory("Actions")]
+        public static object GetViewTitleLocation(global::Revit.Elements.Element viewport)
+        {
+            string versionNumber = DocumentManager.Instance.CurrentUIApplication.Application.VersionNumber;
+            //check if it is Revit 2022
+            if (!versionNumber.Contains("2022"))
+            {
+                throw new Exception(@"This node only works in Revit 2022 as that is when this API was added. ¯\_(ツ)_/¯");
+            }
+            return Utilities.CommandHelpers.InvokeNode("RhythmRevit2022.dll", "Viewport.GetViewTitleLocation", new object[] { viewport});
+        }
+        
     }
 }

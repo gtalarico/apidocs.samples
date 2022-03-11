@@ -34,7 +34,7 @@ namespace Revit.SDK.Samples.ReadonlySharedParameters.CS
     class SharedParameterBindingManager
 		{
 			public String Name { get; set; }
-			public ParameterType Type { get; set; }
+			public ForgeTypeId Type { get; set; }
 			public bool UserModifiable  { get; set; }
 			public bool UserVisible { get; set; }
 			public String Description { get; set; }
@@ -45,7 +45,7 @@ namespace Revit.SDK.Samples.ReadonlySharedParameters.CS
 			public SharedParameterBindingManager ()
 			{
 				Name = "Invalid";
-				Type = ParameterType.Invalid;
+            Type = new ForgeTypeId { };
 				UserModifiable = true;
 				UserVisible = true;
 				Description = "";
