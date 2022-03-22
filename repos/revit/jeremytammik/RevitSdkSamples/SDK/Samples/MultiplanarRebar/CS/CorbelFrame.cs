@@ -398,11 +398,11 @@ namespace Revit.SDK.Samples.MultiplanarRebar.CS
             Trapezoid profileCopy = m_profile.Clone();
             profileCopy.OffsetTop(-m_corbelCoverDistance);
             profileCopy.OffsetLeft(-m_corbelCoverDistance
-                - options.MultiplanarBarType.BarDiameter
-                - options.TopBarType.BarDiameter * 0.5);
+                - options.MultiplanarBarType.BarModelDiameter
+                - options.TopBarType.BarModelDiameter * 0.5);
             profileCopy.OffsetBottom(m_hostDepth - m_hostCoverDistance
-                - options.StirrupBarType.BarDiameter
-                - options.HostStraightBarType.BarDiameter);
+                - options.StirrupBarType.BarModelDiameter
+                - options.HostStraightBarType.BarModelDiameter);
             profileCopy.OffsetRight(-m_corbelCoverDistance);
 
             //m_profile.Draw(options.RevitDoc);
@@ -410,9 +410,9 @@ namespace Revit.SDK.Samples.MultiplanarRebar.CS
 
             XYZ extruDir = (m_extrusionLine.GetEndPoint(1) - m_extrusionLine.GetEndPoint(0)).Normalize();
             double offset = m_corbelCoverDistance +
-                options.StirrupBarType.BarDiameter +
-                options.MultiplanarBarType.BarDiameter +
-                0.5 * options.TopBarType.BarDiameter;
+                options.StirrupBarType.BarModelDiameter +
+                options.MultiplanarBarType.BarModelDiameter +
+                0.5 * options.TopBarType.BarModelDiameter;
 
             Line vetical = profileCopy.Vertical;
             XYZ delta = extruDir * offset;
@@ -437,13 +437,12 @@ namespace Revit.SDK.Samples.MultiplanarRebar.CS
         {
             Trapezoid profileCopy = m_profile.Clone();
             profileCopy.OffsetTop(-m_corbelCoverDistance
-                - options.StirrupBarType.BarDiameter - 0.5 * options.MultiplanarBarType.BarDiameter);
-            profileCopy.OffsetLeft(-m_corbelCoverDistance - 0.5 * options.MultiplanarBarType.BarDiameter);
+                - options.StirrupBarType.BarModelDiameter - 0.5 * options.MultiplanarBarType.BarModelDiameter);
+            profileCopy.OffsetLeft(-m_corbelCoverDistance - 0.5 * options.MultiplanarBarType.BarModelDiameter);
             profileCopy.OffsetBottom(m_hostDepth - m_hostCoverDistance
-                - options.HostStraightBarType.BarDiameter * 4
-                - options.StirrupBarType.BarDiameter);
-            profileCopy.OffsetRight(-m_corbelCoverDistance - options.StirrupBarType.BarDiameter
-                - 0.5 * options.StirrupBarType.BarDiameter);
+                - options.HostStraightBarType.BarModelDiameter * 4
+                - options.StirrupBarType.BarModelDiameter);
+            profileCopy.OffsetRight(-m_corbelCoverDistance - options.StirrupBarType.BarModelDiameter);
 
             //m_profile.Draw(options.RevitDoc);
             //profileCopy.Draw(options.RevitDoc);
@@ -462,8 +461,8 @@ namespace Revit.SDK.Samples.MultiplanarRebar.CS
 
             XYZ extruDir = (m_extrusionLine.GetEndPoint(1) - m_extrusionLine.GetEndPoint(0)).Normalize();
             double offset = m_corbelCoverDistance +
-                options.StirrupBarType.BarDiameter +
-                0.5 * options.MultiplanarBarType.BarDiameter;
+                options.StirrupBarType.BarModelDiameter +
+                0.5 * options.MultiplanarBarType.BarModelDiameter;
 
             newRebar.GetShapeDrivenAccessor().ScaleToBoxFor3D(origin + extruDir * (m_extrusionLine.Length - offset),
                 vx, vy, m_extrusionLine.Length - 2 * offset);
@@ -490,13 +489,13 @@ namespace Revit.SDK.Samples.MultiplanarRebar.CS
             }
 
             Trapezoid profileCopy = m_profile.Clone();
-            profileCopy.OffsetTop(-m_corbelCoverDistance - 0.5 * options.StirrupBarType.BarDiameter);
-            profileCopy.OffsetLeft(-m_corbelCoverDistance - 0.5 * options.StirrupBarType.BarDiameter);
-            profileCopy.OffsetBottom(m_hostDepth - m_hostCoverDistance - 0.5 * options.StirrupBarType.BarDiameter);
-            profileCopy.OffsetRight(-m_corbelCoverDistance - 0.5 * options.StirrupBarType.BarDiameter);
+            profileCopy.OffsetTop(-m_corbelCoverDistance - 0.5 * options.StirrupBarType.BarModelDiameter);
+            profileCopy.OffsetLeft(-m_corbelCoverDistance - 0.5 * options.StirrupBarType.BarModelDiameter);
+            profileCopy.OffsetBottom(m_hostDepth - m_hostCoverDistance - 0.5 * options.StirrupBarType.BarModelDiameter);
+            profileCopy.OffsetRight(-m_corbelCoverDistance - 0.5 * options.StirrupBarType.BarModelDiameter);
 
             XYZ extruDir = (m_extrusionLine.GetEndPoint(1) - m_extrusionLine.GetEndPoint(0)).Normalize();
-            double offset = m_corbelCoverDistance + 0.5 * options.StirrupBarType.BarDiameter;
+            double offset = m_corbelCoverDistance + 0.5 * options.StirrupBarType.BarModelDiameter;
 
             XYZ origin = profileCopy.Vertical.GetEndPoint(0) + extruDir * offset;
             XYZ xAxis = extruDir;
@@ -520,7 +519,7 @@ namespace Revit.SDK.Samples.MultiplanarRebar.CS
             XYZ deltaStep = dirTop * space + dirVertical * step;
 
             origin = profileCopy.Top.GetEndPoint(0) + extruDir * offset;
-            int count = (int)((m_profile.Vertical.Length - m_corbelCoverDistance - 0.5 * options.StirrupBarType.BarDiameter) / step);
+            int count = (int)((m_profile.Vertical.Length - m_corbelCoverDistance - 0.5 * options.StirrupBarType.BarModelDiameter) / step);
             for (int i = 1; i <= count; i++)
             {
                 origin += deltaStep;
@@ -540,14 +539,14 @@ namespace Revit.SDK.Samples.MultiplanarRebar.CS
         {
             Trapezoid profileCopy = m_profile.Clone();
             profileCopy.OffsetBottom(m_hostDepth - m_hostCoverDistance
-                - options.HostStraightBarType.BarDiameter * 0.5
-                - options.StirrupBarType.BarDiameter);
+                - options.HostStraightBarType.BarModelDiameter * 0.5
+                - options.StirrupBarType.BarModelDiameter);
 
             //profileCopy.Draw(options.RevitDoc);
 
             XYZ extruDir = (m_extrusionLine.GetEndPoint(1) - m_extrusionLine.GetEndPoint(0)).Normalize();
-            double offset = m_corbelCoverDistance + options.StirrupBarType.BarDiameter
-                + options.HostStraightBarType.BarDiameter * 0.5;
+            double offset = m_corbelCoverDistance + options.StirrupBarType.BarModelDiameter
+                + options.HostStraightBarType.BarModelDiameter * 0.5;
             XYZ delta = extruDir * offset;
 
             XYZ pt1 = profileCopy.Bottom.GetEndPoint(0) + delta;

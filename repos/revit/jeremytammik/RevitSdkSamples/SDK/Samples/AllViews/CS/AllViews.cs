@@ -1,5 +1,5 @@
 //
-// (C) Copyright 2003-2019 by Autodesk, Inc.
+// (C) Copyright 2003-2022 by Autodesk, Inc.
 //
 // Permission to use, copy, modify, and distribute this software in
 // object code form for any purpose and without fee is hereby granted,
@@ -22,13 +22,11 @@
 
 using System;
 using System.Collections.Generic;
-using System.Text;
 
 using System.Windows.Forms;
 using System.Collections;
-using System.Xml;
+using System.Linq;
 
-using Autodesk.Revit;
 using Autodesk.Revit.DB;
 using Autodesk.Revit.UI;
 
@@ -59,61 +57,182 @@ namespace Revit.SDK.Samples.AllViews.CS
         /// Cancelled can be used to signify that the user cancelled the external operation 
         /// at some point. Failure should be returned if the application is unable to proceed with 
         /// the operation.</returns>
-        public Autodesk.Revit.UI.Result Execute(Autodesk.Revit.UI.ExternalCommandData commandData,
-            ref string message, Autodesk.Revit.DB.ElementSet elements)
-        {
-            Transaction newTran = null;
-            try
-            {
-                if (null == commandData)
-                {
-                    throw new ArgumentNullException("commandData");
-                }
+       public Autodesk.Revit.UI.Result Execute(Autodesk.Revit.UI.ExternalCommandData commandData,
+         ref string message, Autodesk.Revit.DB.ElementSet elements)
+       {
+           if (null == commandData)
+           {
+               throw new ArgumentNullException("commandData");
+           }
 
-                Document doc = commandData.Application.ActiveUIDocument.Document;
-                ViewsMgr view = new ViewsMgr(doc);
+           Document doc = commandData.Application.ActiveUIDocument.Document;
+           ViewsMgr view = new ViewsMgr(doc);
 
-                newTran = new Transaction(doc);
-                newTran.Start("AllViews_Sample");
+           AllViewsForm dlg = new AllViewsForm(view);
 
-                AllViewsForm dlg = new AllViewsForm(view);
+           try
+           {
+               if (dlg.ShowDialog() == DialogResult.OK)
+               {
+                   return view.GenerateSheet(doc);
+               }
+           }
+           catch (Exception e)
+           {
+               message = e.Message;
+               return Autodesk.Revit.UI.Result.Failed;
+           }
 
-                if (dlg.ShowDialog() == DialogResult.OK)
-                {
-                    view.GenerateSheet(doc);
-                }
-                newTran.Commit();
+           return Autodesk.Revit.UI.Result.Succeeded;
+      }
 
-                return Autodesk.Revit.UI.Result.Succeeded;
-            }
-            catch (Exception e)
-            {
-                message = e.Message;
-                if ((newTran != null) && newTran.HasStarted() && !newTran.HasEnded())
-                    newTran.RollBack();
-                return Autodesk.Revit.UI.Result.Failed;
-            }
-        }
-
-        #endregion IExternalCommand Members Implementation
-    }
+      #endregion IExternalCommand Members Implementation
+      }
 
     /// <summary>
     /// Generating a new sheet that has all the selected views placed in.
+    /// Updating and retrieving properties of a selected viewport.
     /// </summary>
     public class ViewsMgr
     {
-        private TreeNode m_allViewsNames = new TreeNode("Views (all)");
-        private ViewSet m_allViews = new ViewSet();
-        private ViewSet m_selectedViews = new ViewSet();
-        private FamilySymbol m_titleBlock;
-        private IList<Element> m_allTitleBlocks = new List<Element>();
-        private ArrayList m_allTitleBlocksNames = new ArrayList();
-        private string m_sheetName;
-        private double m_rows;
+      private TreeNode m_allViewsNames = new TreeNode("Views (all)");
+      private ViewSet m_allViews = new ViewSet();
+      private ViewSet m_selectedViews = new ViewSet();
+      private FamilySymbol m_titleBlock;
+      private IList<Element> m_allTitleBlocks = new List<Element>();
+      private ArrayList m_allTitleBlocksNames = new ArrayList();
+      private string m_sheetName;
+      private double m_rows;
 
-        private double TITLEBAR = 0.2;
-        private double GOLDENSECTION = 0.618;
+      private double TITLEBAR = 0.2;
+      private double GOLDENSECTION = 0.618;
+
+      private Document m_doc;
+
+      private Viewport m_VP;
+
+      /// <summary>
+      /// Update Form data members bonded to UI controls.
+      /// </summary>
+      /// <param name="form">The Form to be updated.</param>
+      public void UpdateViewportProperties(AllViewsForm form)
+      {
+         form.m_getMinBoxOutline = m_VP.GetBoxOutline().MinimumPoint;
+         form.m_getMaxBoxOutline = m_VP.GetBoxOutline().MaximumPoint;
+
+         form.m_getMinLabelOutline = m_VP.GetLabelOutline().MinimumPoint;
+         form.m_getMaxLabelOutline = m_VP.GetLabelOutline().MaximumPoint;
+
+         form.m_getLabelLineOffset = m_VP.LabelOffset;
+         form.m_getLabelLineLength = m_VP.LabelLineLength;
+
+         form.m_getBoxCenter = m_VP.GetBoxCenter();
+         form.m_getOrientation = m_VP.Rotation;
+      }
+
+      /// <summary>
+      /// Select a viewport by its associated view name and sheet name.
+      /// </summary>
+      /// <param name="form">The Form to be updated.</param>
+      /// <param name="selectSheetName"> Sheet name.</param>
+      /// <param name="selectAssociatedViewName">Associated view name.</param>
+      public bool SelectViewport(AllViewsForm form, string selectSheetName, string selectAssociatedViewName)
+      {
+         m_VP = null;
+         form.invalidViewport = true;
+
+         FilteredElementCollector fec = new FilteredElementCollector(m_doc);
+         fec.OfClass(typeof(Autodesk.Revit.DB.View));
+         var viewSheets = fec.Cast<Autodesk.Revit.DB.View>().Where<Autodesk.Revit.DB.View>(vp => !vp.IsTemplate && vp.ViewType == ViewType.DrawingSheet);
+
+         foreach (var view in viewSheets)
+         {
+            if (view.Name.Equals(selectSheetName))
+            {
+               ViewSheet viewSheet = (ViewSheet)view;
+               foreach (var vp in viewSheet.GetAllViewports())
+               {
+                  Viewport VP = (Viewport)(m_doc.GetElement(vp));
+
+                  Autodesk.Revit.DB.View associatedView = m_doc.GetElement(VP.ViewId) as Autodesk.Revit.DB.View;
+
+                  if (associatedView.Name.Equals(selectAssociatedViewName))
+                  {
+                     m_VP = VP;
+                     break;
+                  }
+               }
+            }
+         }
+
+         if (m_VP == null)
+         {
+            throw new InvalidOperationException("Viewport not found.");
+         }
+
+         form.invalidViewport = false;
+         UpdateViewportProperties(form);
+         return true;
+      }
+
+      /// <summary>
+      /// Change viewport label offset.
+      /// </summary>
+      /// <param name="form">The Form to be updated.</param>
+      /// <param name="labelOffsetX">Label offset X component.</param>
+      /// <param name="labelOffsetY">Label offset Y component.</param>
+      public void SetLabelOffset(AllViewsForm form,
+         double labelOffsetX, double labelOffsetY)
+      {
+         using (Transaction t = new Transaction(m_doc, "Change label offset"))
+         {
+            t.Start();
+
+            m_VP.LabelOffset = new XYZ(labelOffsetX, labelOffsetY, 0.0);
+
+            t.Commit();
+
+            UpdateViewportProperties(form);
+         }
+      }
+
+      /// <summary>
+      /// Change viewport label length.
+      /// </summary>
+      /// <param name="form">The Form to be updated.</param>
+      /// <param name="labelLineLength">Label line length.</param>
+      public void SetLabelLength(AllViewsForm form, double labelLineLength)
+      {
+         using (Transaction t = new Transaction(m_doc, "Change label length"))
+         {
+            t.Start();
+
+            m_VP.LabelLineLength = labelLineLength;
+
+            t.Commit();
+
+            UpdateViewportProperties(form);
+         }
+      }
+
+      /// <summary>
+      /// Change viewport orientation.
+      /// </summary>
+      /// <param name="form">The Form to be updated.</param>
+      /// <param name="rotation">Label line rotation.</param>
+      public void SetRotation(AllViewsForm form, ViewportRotation rotation)
+      {
+         using (Transaction t = new Transaction(m_doc, "Change label orientation"))
+         {
+            t.Start();
+
+            m_VP.Rotation = rotation;
+
+            t.Commit();
+
+            UpdateViewportProperties(form);
+         }
+      }
 
         /// <summary>
         /// Tree node store all views' names.
@@ -158,6 +277,7 @@ namespace Revit.SDK.Samples.AllViews.CS
         /// <param name="doc">the active document</param>
         public ViewsMgr(Document doc)
         {
+            m_doc = doc;
             GetAllViews(doc);
             GetTitleBlocks(doc);
         }
@@ -256,25 +376,52 @@ namespace Revit.SDK.Samples.AllViews.CS
             }
         }
 
-        /// <summary>
-        /// Generate sheet in active document.
-        /// </summary>
-        /// <param name="doc">the currently active document</param>
-        public void GenerateSheet(Document doc)
-        {
-            if (null == doc)
-            {
+      /// <summary>
+      /// Generate sheet in active document.
+      /// </summary>
+      /// <param name="doc">the currently active document</param>
+      public Autodesk.Revit.UI.Result GenerateSheet(Document doc)
+      {
+         if (null == doc)
+         {
                 throw new ArgumentNullException("doc");
+         }
+
+         if (m_selectedViews.IsEmpty)
+         {
+                throw new InvalidOperationException("No view be selected, generate sheet be canceled.");
+         }
+
+         Result result = Result.Succeeded;
+
+         using (Transaction newTran = new Transaction(doc, "AllViews_Sample"))
+         {
+            newTran.Start();
+
+            try
+            {
+                  ViewSheet sheet = ViewSheet.Create(doc, m_titleBlock.Id);
+                  sheet.Name = SheetName;
+                  PlaceViews(m_selectedViews, sheet);
+            }
+            catch(Exception)
+            {
+                  result = Result.Failed;
             }
 
-            if (0 == m_selectedViews.Size)
+            if (result == Result.Succeeded)
             {
-                throw new InvalidOperationException("No view be selected, generate sheet be canceled.");
+                  newTran.Commit();
             }
-            ViewSheet sheet = ViewSheet.Create(doc, m_titleBlock.Id);
-            sheet.Name = SheetName;
-            PlaceViews(m_selectedViews, sheet);
-        }
+            else
+            {
+                  newTran.RollBack();
+                  throw new InvalidOperationException("Failed to generate sheet view and/or its viewports.");
+            }
+         }
+
+         return result;
+      }
 
         /// <summary>
         /// Retrieve the title block to be generate by its name.

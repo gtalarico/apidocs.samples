@@ -143,12 +143,19 @@ namespace Revit.SDK.Samples.FoundationSlab.CS
             }
 
             // Create a new slab.
-            Autodesk.Revit.DB.XYZ normal = new Autodesk.Revit.DB.XYZ(0, 0, 1);
             Transaction t = new Transaction(m_revit.ActiveUIDocument.Document, Guid.NewGuid().GetHashCode().ToString());
             t.Start();
-            Floor foundationSlab = m_revit.ActiveUIDocument.Document.Create.NewFoundationSlab(
-                slab.OctagonalProfile, m_foundationSlabType, m_levelList.Values[0],
-                true, normal);
+
+            CurveLoop loop = new CurveLoop();
+            foreach (Curve curve in slab.OctagonalProfile)
+            {
+               loop.Append(curve);
+            }
+
+            List<CurveLoop> floorLoops = new List<CurveLoop> { loop };
+            Floor foundationSlab = Floor.Create(m_revit.ActiveUIDocument.Document, floorLoops,
+               m_foundationSlabType.Id, m_levelList.Values[0].Id, true, null, 0.0);
+
             t.Commit();
             if (null == foundationSlab)
             {

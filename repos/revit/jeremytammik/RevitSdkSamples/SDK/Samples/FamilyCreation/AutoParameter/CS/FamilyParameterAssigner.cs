@@ -182,25 +182,10 @@ namespace Revit.SDK.Samples.AutoParameter.CS
                // get the paramName
                string paramName = values[0];
                // get the paramGroup
-               string groupString = values[1];
-               // in case the groupString is format of "BuiltInParameterGroup.PG_Text", need to remove the "BuiltInParameterGroup.",
-               // keep the "PG_Text" only
-               int index = -1;
-               if (0 <= (index = groupString.ToLower().IndexOf("builtinparametergroup")))
-               {
-                  // why +1? need to remove the "." after "builtinparametergroup"
-                  groupString = groupString.Substring(index + 1 + "builtinparametergroup".Length);
-               }
-               BuiltInParameterGroup paramGroup = (BuiltInParameterGroup)Enum.Parse(typeof(BuiltInParameterGroup), groupString);
+               ForgeTypeId paramGroup = new ForgeTypeId(values[1]);
 
                // get the paramType
-               string typeString = values[2];
-               if (0 <= (index = typeString.ToLower().IndexOf("parametertype")))
-               {
-                  // why +1? need to remove the "." after "builtinparametergroup"
-                  typeString = typeString.Substring(index + 1 + "parametertype".Length);
-               }
-               ParameterType paramType = (ParameterType)Enum.Parse(typeof(ParameterType), typeString);
+               ForgeTypeId paramType = new ForgeTypeId(values[2]);
                // get data "isInstance"
                string isInstanceString = values[3];
                bool isInstance = Convert.ToBoolean(isInstanceString);
@@ -402,20 +387,20 @@ namespace Revit.SDK.Samples.AutoParameter.CS
          get { return m_name; }
       }
 
-      BuiltInParameterGroup m_group;
+      ForgeTypeId m_group;
       /// <summary>
       /// the group of the parameter
       /// </summary>
-      public BuiltInParameterGroup Group
+      public ForgeTypeId Group
       {
          get { return m_group; }
       }
 
-      ParameterType m_type;
+      ForgeTypeId m_type;
       /// <summary>
       /// the type of the parameter
       /// </summary>
-      public ParameterType Type
+      public ForgeTypeId Type
       {
          get { return m_type; }
       }
@@ -463,7 +448,7 @@ namespace Revit.SDK.Samples.AutoParameter.CS
       /// <param name="line">
       /// record the location of this parameter in the family parameter file
       /// </param>
-      public FamilyParam(string name, BuiltInParameterGroup group, ParameterType type, bool isInstance, int line)
+      public FamilyParam(string name, ForgeTypeId group, ForgeTypeId type, bool isInstance, int line)
       {
          m_name = name;
          m_group = group;

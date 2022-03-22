@@ -68,6 +68,7 @@ namespace Revit.SDK.Samples.ImportExport.CS
             comboBoxExport.Items.Add("DWFx");
             comboBoxExport.Items.Add("GBXML");
             comboBoxExport.Items.Add("DGN");
+            comboBoxExport.Items.Add("PDF");
             if (m_mainData.Is3DView)
             {
                 comboBoxExport.Items.Add("FBX");

@@ -23,6 +23,14 @@ namespace ExportCncFab
     const string _exported_first = "CncFabExportedFirst";
     const string _exported_last = "CncFabExportedLast";
 
+    /// <summary>
+    /// An optional sort mark can be added to elements.
+    /// The sort mark is inserted into the generated 
+    /// output filename, cf. GitHub issue #1:
+    /// https://github.com/jeremytammik/ExportCncFab/issues/1
+    /// </summary>
+    const string _sort_mark = "CncFabSortMark";
+
     //Guid _guid_is_exported;
     //Guid _guid_exported_first;
     //Guid _guid_exported_last;
@@ -34,6 +42,7 @@ namespace ExportCncFab
     Definition _definition_is_exported = null;
     Definition _definition_exported_first = null;
     Definition _definition_exported_last = null;
+    Definition _definition_sort_mark = null;
 
     Document _doc = null;
     List<ElementId> _ids = null;
@@ -77,6 +86,9 @@ namespace ExportCncFab
 
       _definition_exported_last = GetDefinition(
         e, _exported_last );
+
+      _definition_sort_mark = GetDefinition(
+        e, _sort_mark );
 
       if( IsValid )
       {
@@ -158,7 +170,8 @@ namespace ExportCncFab
     static Definition CreateNewDefinition(
       DefinitionGroup group,
       string parameter_name,
-      ParameterType parameter_type )
+      //ParameterType parameter_type 2021
+      ForgeTypeId parameter_type ) // 2022
     {
       //return group.Definitions.Create( 
       //  parameter_name, parameter_type, true ); // 2014
@@ -249,7 +262,8 @@ namespace ExportCncFab
         Definition definition
           = group.Definitions.get_Item( _is_exported )
           //?? group.Definitions.Create( _is_exported, ParameterType.YesNo, true ); // 2014
-          ?? CreateNewDefinition( group, _is_exported, ParameterType.YesNo ); // 2015
+          //?? CreateNewDefinition( group, _is_exported, ParameterType.YesNo ); // 2015
+          ?? CreateNewDefinition( group, _is_exported, SpecTypeId.Boolean.YesNo ); // 2022
 
         doc.ParameterBindings.Insert( definition, binding,
           BuiltInParameterGroup.PG_GENERAL );
@@ -257,7 +271,8 @@ namespace ExportCncFab
         definition
           = group.Definitions.get_Item( _exported_first )
           //?? group.Definitions.Create( _exported_first, ParameterType.Text, true ); // 2014
-          ?? CreateNewDefinition( group, _exported_first, ParameterType.Text ); // 2015
+          //?? CreateNewDefinition( group, _exported_first, ParameterType.Text ); // 2015
+          ?? CreateNewDefinition( group, _exported_first, SpecTypeId.String.Text ); // 2022
 
         doc.ParameterBindings.Insert( definition, binding,
           BuiltInParameterGroup.PG_GENERAL );
@@ -265,13 +280,25 @@ namespace ExportCncFab
         definition
           = group.Definitions.get_Item( _exported_last )
           //?? group.Definitions.Create( _exported_last, ParameterType.Text, true ); // 2014
-          ?? CreateNewDefinition( group, _exported_last, ParameterType.Text ); // 2015
+          //?? CreateNewDefinition( group, _exported_last, ParameterType.Text ); // 2015
+          ?? CreateNewDefinition( group, _exported_last, SpecTypeId.String.Text ); // 2022
 
         doc.ParameterBindings.Insert( definition, binding,
           BuiltInParameterGroup.PG_GENERAL );
 
         t.Commit();
       }
+    }
+
+    /// <summary>
+    /// Return the sort mark associated with the given 
+    /// element for insertion into the output filename
+    /// </summary>
+    public string GetSortMarkFor( Element e )
+    {
+      return (null != _definition_sort_mark)
+        ? e.get_Parameter( _definition_sort_mark ).AsString()
+        : null;
     }
   }
 }

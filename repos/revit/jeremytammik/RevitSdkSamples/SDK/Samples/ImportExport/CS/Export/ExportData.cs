@@ -310,6 +310,9 @@ namespace Revit.SDK.Samples.ImportExport.CS
                 case ExportFormat.Image:
                     extension = "";
                     break;
+                case ExportFormat.PDF:
+                    extension = "pdf";
+                    break;
                 default:
                     break;
             }

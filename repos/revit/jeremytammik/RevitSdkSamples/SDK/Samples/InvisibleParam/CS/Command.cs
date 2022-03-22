@@ -99,7 +99,7 @@ namespace Revit.SDK.Samples.InvisibleParam.CS
                 DefinitionGroup apiGroup = parafile.Groups.Create("APIGroup");
 
                 //Create a visible "VisibleParam" of text type.
-                ExternalDefinitionCreationOptions ExternalDefinitionCreationOptions1 = new ExternalDefinitionCreationOptions("VisibleParam", ParameterType.Text);
+                ExternalDefinitionCreationOptions ExternalDefinitionCreationOptions1 = new ExternalDefinitionCreationOptions("VisibleParam", SpecTypeId.String.Text);
                 Definition visibleParamDef = apiGroup.Definitions.Create
                     (ExternalDefinitionCreationOptions1);
                                         ;
@@ -107,7 +107,7 @@ namespace Revit.SDK.Samples.InvisibleParam.CS
                 bindingMap.Insert(visibleParamDef, binding);
 
                 //Create a invisible "InvisibleParam" of text type.
-                ExternalDefinitionCreationOptions ExternalDefinitionCreationOptions2 = new ExternalDefinitionCreationOptions("InvisibleParam", ParameterType.Text);
+                ExternalDefinitionCreationOptions ExternalDefinitionCreationOptions2 = new ExternalDefinitionCreationOptions("InvisibleParam", SpecTypeId.String.Text);
                 Definition invisibleParamDef = apiGroup.Definitions.Create
                     (ExternalDefinitionCreationOptions2);
                 bindingMap.Insert(invisibleParamDef, binding);

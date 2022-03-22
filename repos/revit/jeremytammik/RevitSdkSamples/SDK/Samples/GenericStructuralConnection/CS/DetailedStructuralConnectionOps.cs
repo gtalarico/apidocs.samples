@@ -187,16 +187,16 @@ namespace Revit.SDK.Samples.GenericStructuralConnection.CS
                     tran.Start();
 
                     // Do the properties match.
-                    Schema masterSchema = GetSchema(activeDoc.Document, srcConn);
-                    Entity masterEnt = srcConn.GetEntity(masterSchema);
+                    Schema primarySchema = GetSchema(activeDoc.Document, srcConn);
+                    Entity primaryEnt = srcConn.GetEntity(primarySchema);
 
                     // You could also access and modify the connection parameters.
-                    IList<Field> fields = masterSchema.ListFields();
+                    IList<Field> fields = primarySchema.ListFields();
                     foreach (Field field in fields)
                     {
                         if (field.ValueType == typeof(string))
                         {
-                            IList<string> parameters = masterEnt.Get<IList<string>>(field);
+                            IList<string> parameters = primaryEnt.Get<IList<string>>(field);
                             foreach (string str in parameters)
                             {
                                 // Do something.
@@ -204,7 +204,7 @@ namespace Revit.SDK.Samples.GenericStructuralConnection.CS
                         }
                     }
 
-                    destConn.SetEntity(masterEnt);
+                    destConn.SetEntity(primaryEnt);
 
                     TransactionStatus ts = tran.Commit();
                     if (ts != TransactionStatus.Committed)

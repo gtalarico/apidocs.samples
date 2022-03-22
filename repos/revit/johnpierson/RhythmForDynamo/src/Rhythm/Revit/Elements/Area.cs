@@ -1,21 +1,74 @@
 ﻿using System.Collections.Generic;
+using System.Linq;
 using Autodesk.DesignScript.Geometry;
 using Autodesk.Revit.DB;
+using Dynamo.Graph.Nodes;
 using Revit.Elements;
 using Revit.GeometryConversion;
 using RevitServices.Persistence;
+using Rhythm.Utilities;
 using Point = Autodesk.DesignScript.Geometry.Point;
 using Solid = Autodesk.DesignScript.Geometry.Solid;
 
 namespace Rhythm.Revit.Elements
 {
+    // ReSharper disable PossibleNullReferenceException
     /// <summary>
     /// Wrapper class for Area.
     /// </summary>
     public class Areas
     {
+        
         private Areas()
         {
+        }
+        /// <summary>
+        /// Get the input area's scheme.
+        /// </summary>
+        /// <param name="area">The area to check.</param>
+        /// <returns name="areaScheme"></returns>
+        [NodeCategory("Query")]
+        public static global::Revit.Elements.Element AreaScheme(global::Revit.Elements.Element area)
+        {
+            Autodesk.Revit.DB.Area internalArea = area.InternalElement as Autodesk.Revit.DB.Area;
+          
+            
+            return internalArea.AreaScheme.ToDSType(true);
+        }
+
+
+        /// <summary>
+        /// This will report whether or not the area contains the given point.
+        /// </summary>
+        /// <param name="area">The area to check.</param>
+        /// <param name="point">The point to check.</param>
+        /// <returns></returns>
+        [NodeCategory("Actions")]
+        public static bool ContainsPoint(global::Revit.Elements.Element area, Point point)
+        {
+            Autodesk.Revit.DB.Area internalArea = area.InternalElement as Autodesk.Revit.DB.Area;
+            if (internalArea.Area == 0)
+            {
+                return false;
+            }
+            XYZ xyz = point.ToXyz();
+            return internalArea.AreaContains(xyz);
+        }
+
+        /// <summary>
+        /// This will return the area at the given point.
+        /// </summary>
+        /// <param name="point">The point to check.</param>
+        /// <returns name="area">The area found at the point (if available).</returns>
+        [NodeCategory("Actions")]
+        public static List<global::Revit.Elements.Element> AreaAtPoint(Point point)
+        {
+            Autodesk.Revit.DB.Document doc = DocumentManager.Instance.CurrentDBDocument;
+
+            //collect the areas to do some cool stuff
+            var area = new FilteredElementCollector(doc).OfCategory(BuiltInCategory.OST_Areas).Cast<Autodesk.Revit.DB.Area>().Select(a => a.ToDSType(true)).ToList();
+
+            return area.Where(a => ContainsPoint(a,point)).ToList();
         }
 
         /// <summary>
@@ -26,6 +79,7 @@ namespace Rhythm.Revit.Elements
         /// <search>
         /// Area.Boundaries
         /// </search>
+        [NodeCategory("Query")]
         public static List<List<Autodesk.DesignScript.Geometry.Curve>> Boundaries(global::Revit.Elements.Element area)
         {
             Autodesk.Revit.DB.Area internalArea = (Autodesk.Revit.DB.Area)area.InternalElement;
@@ -55,6 +109,7 @@ namespace Rhythm.Revit.Elements
         /// <search>
         /// Area.Boundaries
         /// </search>
+        [NodeCategory("Query")]
         public static Solid Solid(global::Revit.Elements.Element area, double areaHeight = 10.0)
         {
 
@@ -109,7 +164,6 @@ namespace Rhythm.Revit.Elements
                 solid = solid.DifferenceAll(solidCollection);
             }
 
-
             return solid;
         }
 
@@ -120,10 +174,11 @@ namespace Rhythm.Revit.Elements
         /// </summary>
         /// <param name="point">The point to select area(s) at.</param>
         /// <param name="areaHeight">A manually input area height. Default value is 10.</param>
-        /// <returns name="area">The solid.</returns>
+        /// <returns name="area">The area.</returns>
         /// <search>
         /// Area.GetAreaAtPoint
         /// </search>
+        [NodeCategory("Query")]
         public static List<global::Revit.Elements.Element> GetAreaAtPoint(Autodesk.DesignScript.Geometry.Point point, double areaHeight = 10.0)
         {
             Autodesk.Revit.DB.Document doc = DocumentManager.Instance.CurrentDBDocument;
@@ -152,6 +207,7 @@ namespace Rhythm.Revit.Elements
         /// <search>
         /// Area.OuterBoundary
         /// </search>
+        [NodeCategory("Query")]
         public static Polygon OuterBoundary(global::Revit.Elements.Element area)
         {
             List<List<Autodesk.DesignScript.Geometry.Curve>> boundaries = Rhythm.Revit.Elements.Areas.Boundaries(area);

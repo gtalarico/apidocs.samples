@@ -173,7 +173,7 @@ namespace Revit.SDK.Samples.RoomSchedule
                 DefinitionGroup apiGroup = parafile.Groups.Create("SDKSampleRoomScheduleGroup");
 
                 // create a visible "External Room ID" of text type.
-                ExternalDefinitionCreationOptions ExternalDefinitionCreationOptions = new ExternalDefinitionCreationOptions(RoomsData.SharedParam, ParameterType.Text);
+                ExternalDefinitionCreationOptions ExternalDefinitionCreationOptions = new ExternalDefinitionCreationOptions(RoomsData.SharedParam, SpecTypeId.String.Text);
                 Definition roomSharedParamDef = apiGroup.Definitions.Create(ExternalDefinitionCreationOptions);
 
                 // get Rooms category

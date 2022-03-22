@@ -92,7 +92,7 @@ namespace Revit.SDK.Samples.NewRebar.CS
 
             if (Bdef == null)
             {
-               ExternalDefinitionCreationOptions ExternalDefinitionCreationOptions = new ExternalDefinitionCreationOptions(m_name, ParameterType.ReinforcementLength);
+               ExternalDefinitionCreationOptions ExternalDefinitionCreationOptions = new ExternalDefinitionCreationOptions(m_name, SpecTypeId.ReinforcementLength);
                Bdef = group.
                    Definitions.Create(ExternalDefinitionCreationOptions) as ExternalDefinition;
             }

@@ -259,27 +259,27 @@ namespace Revit.SDK.Samples.ViewPrinter.CS
             }
         }
 
-        public double UserDefinedMarginX
+        public double OriginOffsetX
         {
             get
             {
-                return m_printMgr.PrintSetup.CurrentPrintSetting.PrintParameters.UserDefinedMarginX;
+                return m_printMgr.PrintSetup.CurrentPrintSetting.PrintParameters.OriginOffsetX;
             }
             set
             {
-                m_printMgr.PrintSetup.CurrentPrintSetting.PrintParameters.UserDefinedMarginX = value;
+                m_printMgr.PrintSetup.CurrentPrintSetting.PrintParameters.OriginOffsetX = value;
             }
         }
 
-        public double UserDefinedMarginY
+        public double OriginOffsetY
         {
             get
             {
-                return m_printMgr.PrintSetup.CurrentPrintSetting.PrintParameters.UserDefinedMarginY;
+                return m_printMgr.PrintSetup.CurrentPrintSetting.PrintParameters.OriginOffsetY;
             }
             set
             {
-                m_printMgr.PrintSetup.CurrentPrintSetting.PrintParameters.UserDefinedMarginY = value;
+                m_printMgr.PrintSetup.CurrentPrintSetting.PrintParameters.OriginOffsetY = value;
             }
         }
 
@@ -460,9 +460,9 @@ namespace Revit.SDK.Samples.ViewPrinter.CS
         public bool VerifyMarginType(System.Windows.Forms.Control controlToEnableOrNot)
         {
             // Enable terms (or):
-            // 1. Paper placement is Margins.
+            // 1. Paper placement is LowerLeft.
             return controlToEnableOrNot.Enabled =
-                m_printMgr.PrintSetup.CurrentPrintSetting.PrintParameters.PaperPlacement == PaperPlacementType.Margins;
+                m_printMgr.PrintSetup.CurrentPrintSetting.PrintParameters.PaperPlacement == PaperPlacementType.LowerLeft;
         }
 
         public bool VerifyUserDefinedMargin(Collection<System.Windows.Forms.Control> controlsToEnableOrNot)

@@ -7,8 +7,7 @@ clr.AddReference("RevitServices")
 import RevitServices
 from RevitServices.Persistence import DocumentManager
 
-def ElementTypesByCategory(cat, doc):
-	bic = System.Enum.ToObject(BuiltInCategory, cat.Id)
+def ElementTypesByCategory(bic, doc):
 	collector = FilteredElementCollector(doc).OfCategory(bic).WhereElementIsElementType()
 	return collector.ToElements()
 

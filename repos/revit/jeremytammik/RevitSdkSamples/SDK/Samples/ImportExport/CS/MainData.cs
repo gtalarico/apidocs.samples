@@ -71,8 +71,12 @@ namespace Revit.SDK.Samples.ImportExport.CS
         /// <summary>
         /// IMG format
         /// </summary>
-        Image
-    }
+        Image,
+        /// <summary>
+        /// PDF format
+        /// </summary>
+        PDF
+   }
 
     /// <summary>
     /// Import formats
@@ -190,6 +194,9 @@ namespace Revit.SDK.Samples.ImportExport.CS
                 case "IMAGE":
                     format = ExportFormat.Image;
                     break;
+                case "PDF":
+                    format = ExportFormat.PDF;
+                    break;
                 default:
                     break;
             }
@@ -259,6 +266,13 @@ namespace Revit.SDK.Samples.ImportExport.CS
                         using (ExportWithViewsForm exportForm = new ExportWithViewsForm(exportIMGdata))
                         {
                             dialogResult = DialogResult.OK;
+                        }
+                        break;
+                    case ExportFormat.PDF:
+                        ExportPDFData exportPDFData = new ExportPDFData(m_commandData, format);
+                        using (ExportWithViewsForm exportForm = new ExportWithViewsForm(exportPDFData))
+                        {
+                           dialogResult = exportForm.ShowDialog();
                         }
                         break;
                     default:
